@@ -8,8 +8,13 @@ import org.iot.dsa.dslink.requester.ErrorType;
 import org.iot.dsa.dslink.requester.OutboundStream;
 import org.iot.dsa.dslink.requester.OutboundSubscribeHandler;
 import org.iot.dsa.node.DSElement;
+import org.iot.dsa.node.DSIObject;
+import org.iot.dsa.node.DSInfo;
 import org.iot.dsa.node.DSMap;
 import org.iot.dsa.node.DSMap.Entry;
+import org.iot.dsa.node.action.ActionInvocation;
+import org.iot.dsa.node.action.ActionResult;
+import org.iot.dsa.node.action.DSAction;
 import org.iot.dsa.node.DSNode;
 import org.iot.dsa.node.DSStatus;
 import org.iot.dsa.time.DSDateTime;
@@ -29,6 +34,24 @@ public class SubscriptionRule extends DSNode implements OutboundSubscribeHandler
     
     public SubscriptionRule(DSMap parameters) {
         this.parameters = parameters;
+    }
+    
+    @Override
+    protected void declareDefaults() {
+        super.declareDefaults();
+        declareDefault("Remove", makeRemoveAction());
+    }
+    
+    @Override
+    protected void onStarted() {
+        if (this.parameters == null) {
+            DSIObject o = get("parameters");
+            if (o instanceof DSMap) {
+                this.parameters = (DSMap) o;
+            }
+        } else {
+            put("parameters", parameters.copy()).setHidden(true);
+        }
     }
     
     @Override
@@ -106,6 +129,21 @@ public class SubscriptionRule extends DSNode implements OutboundSubscribeHandler
         if (stream != null && stream.isStreamOpen()) {
             stream.closeStream();
         }
+    }
+    
+    private DSAction makeRemoveAction() {
+        return new DSAction() {
+            @Override
+            public ActionResult invoke(DSInfo info, ActionInvocation invocation) {
+                ((SubscriptionRule) info.getParent()).delete();
+                return null;
+            }
+        };
+    }
+
+    private void delete() {
+        close();
+        getParent().remove(getInfo());
     }
     
     public String getSubscribePath() {
