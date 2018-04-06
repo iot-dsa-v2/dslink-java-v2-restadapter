@@ -12,11 +12,12 @@ import org.iot.dsa.node.DSIObject;
 import org.iot.dsa.node.DSInfo;
 import org.iot.dsa.node.DSMap;
 import org.iot.dsa.node.DSMap.Entry;
+import org.iot.dsa.node.DSNode;
+import org.iot.dsa.node.DSStatus;
+import org.iot.dsa.node.DSString;
 import org.iot.dsa.node.action.ActionInvocation;
 import org.iot.dsa.node.action.ActionResult;
 import org.iot.dsa.node.action.DSAction;
-import org.iot.dsa.node.DSNode;
-import org.iot.dsa.node.DSStatus;
 import org.iot.dsa.time.DSDateTime;
 import org.iot.dsa.util.DSException;
 
@@ -56,12 +57,12 @@ public class SubscriptionRule extends DSNode implements OutboundSubscribeHandler
     
     @Override
     protected void onStable() {
+        learnPattern();
         DSIRequester requester = MainNode.getRequester();
-        
         String path = getSubscribePath();
         int qos = 0;
         requester.subscribe(path, qos, this);
-        learnPattern();
+        put("Edit", makeEditAction());
     }
     
     private void learnPattern() {
@@ -144,6 +145,32 @@ public class SubscriptionRule extends DSNode implements OutboundSubscribeHandler
     private void delete() {
         close();
         getParent().remove(getInfo());
+    }
+    
+    private DSIObject makeEditAction() {
+        DSAction act = new DSAction() {
+            @Override
+            public ActionResult invoke(DSInfo info, ActionInvocation invocation) {
+                ((SubscriptionRule) info.getParent()).edit(invocation.getParameters());
+                return null;
+            }
+        };
+        act.addDefaultParameter("Subscribe Path", DSString.valueOf(getSubscribePath()), null);
+        act.addDefaultParameter("REST URL", DSString.valueOf(getRestUrl()), null);
+        act.addDefaultParameter("Method", DSString.valueOf(getMethod()), null);
+        act.addDefaultParameter("URL Parameters", getURLParameters().copy(), null);
+        act.addDefaultParameter("Body", DSString.valueOf(getBody()), null);
+        return act;
+    }
+
+    protected void edit(DSMap parameters) {
+        for (int i = 0; i < parameters.size(); i++) {
+            Entry entry = parameters.getEntry(i);
+            this.parameters.put(entry.getKey(), entry.getValue().copy());
+        }
+        put("parameters", parameters.copy());
+        close();
+        onStable();
     }
     
     public String getSubscribePath() {
