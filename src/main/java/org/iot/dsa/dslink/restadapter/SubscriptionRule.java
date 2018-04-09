@@ -25,6 +25,7 @@ public class SubscriptionRule extends DSNode implements OutboundSubscribeHandler
     
     private DSMap parameters;
     private OutboundStream stream;
+    private WebClientProxy clientProxy;
     
     private boolean valuesInBody = false;
     private List<String> urlParamsWithValues = new ArrayList<String>();
@@ -57,6 +58,7 @@ public class SubscriptionRule extends DSNode implements OutboundSubscribeHandler
     
     @Override
     protected void onStable() {
+        clientProxy = new WebClientProxy();
         learnPattern();
         DSIRequester requester = MainNode.getRequester();
         String path = getSubscribePath();
@@ -122,8 +124,8 @@ public class SubscriptionRule extends DSNode implements OutboundSubscribeHandler
             body = body.replaceAll("%STATUS%", status.toString());
         }
         
-        Response resp = WebClientProxy.invoke(getMethod(), getRestUrl(), urlParams, body);
-        info(resp.getEntity());
+        Response resp = clientProxy.invoke(getMethod(), getRestUrl(), urlParams, body);
+//        info(resp.getEntity());
     }
     
     public void close() {

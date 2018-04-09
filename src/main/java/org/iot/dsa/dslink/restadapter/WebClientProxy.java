@@ -8,53 +8,65 @@ import org.iot.dsa.node.DSMap;
 import org.iot.dsa.node.DSMap.Entry;
 
 public class WebClientProxy {
+    
+    private String username;
+    private String password;
+    
+    
+    public WebClientProxy() {
+        
+    }
+    
+    public WebClientProxy(String username, String password) {
+        
+    }
 	
-	public static Response get(String address, DSMap urlParameters) {
+	public Response get(String address, DSMap urlParameters) {
 		WebClient client = prepareWebClient(address, urlParameters);
 		Response r = client.get();
 		client.close();
 		return r;
 	}
 	
-	public static Response put(String address, DSMap urlParameters, Object body) {
+	public Response put(String address, DSMap urlParameters, Object body) {
 	    WebClient client = prepareWebClient(address, urlParameters);
 	    Response r = client.put(body);
 	    client.close();
 	    return r;
 	}
 	
-	public static Response post(String address, DSMap urlParameters, Object body) {
+	public Response post(String address, DSMap urlParameters, Object body) {
         WebClient client = prepareWebClient(address, urlParameters);
         Response r = client.post(body);
         client.close();
         return r;
     }
 	
-	public static Response delete(String address, DSMap urlParameters) {
+	public Response delete(String address, DSMap urlParameters) {
         WebClient client = prepareWebClient(address, urlParameters);
         Response r = client.delete();
         client.close();
         return r;
     }
 	
-	public static Response patch(String address, DSMap urlParameters, Object body) {
+	public Response patch(String address, DSMap urlParameters, Object body) {
         return invoke("PATCH", address, urlParameters, body);
     }
 	
-	public static Response invoke(String httpMethod, String address, DSMap urlParameters, Object body) {
+	public Response invoke(String httpMethod, String address, DSMap urlParameters, Object body) {
 	    WebClient client = prepareWebClient(address, urlParameters);
         Response r = client.invoke(httpMethod, body);
         client.close();
         return r;
 	}
 	
-	private static WebClient prepareWebClient(String address, DSMap urlParameters) {
+	private WebClient prepareWebClient(String address, DSMap urlParameters) {
 	    WebClient client;
-//        if (username != null && password != null) {
-//            client = WebClient.create(address, username, password, null);
-//        } else {
+        if (username != null && password != null) {
+            client = WebClient.create(address, username, password, null);
+        } else {
             client =  WebClient.create(address);
-//        }
+        }
         client.accept(MediaType.APPLICATION_JSON);
         for (int i = 0; i < urlParameters.size(); i++) {
             Entry entry = urlParameters.getEntry(i);
