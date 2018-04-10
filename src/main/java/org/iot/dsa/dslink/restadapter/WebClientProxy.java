@@ -18,7 +18,8 @@ public class WebClientProxy {
     }
     
     public WebClientProxy(String username, String password) {
-        
+        this.username = username;
+        this.password = password;
     }
 	
 	public Response get(String address, DSMap urlParameters) {

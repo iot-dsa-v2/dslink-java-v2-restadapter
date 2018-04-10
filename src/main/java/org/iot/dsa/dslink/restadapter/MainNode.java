@@ -6,7 +6,6 @@ import org.iot.dsa.dslink.DSMainNode;
 import org.iot.dsa.dslink.DSLinkConnection.Listener;
 import org.iot.dsa.node.DSInfo;
 import org.iot.dsa.node.DSMap;
-import org.iot.dsa.node.DSString;
 import org.iot.dsa.node.DSValueType;
 import org.iot.dsa.node.action.ActionInvocation;
 import org.iot.dsa.node.action.ActionResult;
@@ -32,30 +31,27 @@ public class MainNode extends DSMainNode {
     @Override
     protected void declareDefaults() {
         super.declareDefaults();
-        declareDefault("Add Rule", makeAddRuleAction());
+        declareDefault("Add Connection", makeAddConnectionAction());
     }
 
-    private DSAction makeAddRuleAction() {
+    private DSAction makeAddConnectionAction() {
         DSAction act = new DSAction() {
             @Override
             public ActionResult invoke(DSInfo info, ActionInvocation invocation) {
-                ((MainNode) info.getParent()).addRule(invocation.getParameters());
+                ((MainNode) info.getParent()).addConnection(invocation.getParameters());
                 return null;
             }
         };
         act.addParameter("Name", DSValueType.STRING, null);
-        act.addParameter("Subscribe Path", DSValueType.STRING, null);
-        act.addParameter("REST URL", DSValueType.STRING, null);
-        act.addDefaultParameter("Method", DSString.valueOf("POST"), null);
-        act.addDefaultParameter("URL Parameters", new DSMap(), null);
-        act.addParameter("Body", DSValueType.STRING, null);
+        act.addParameter("Username", DSValueType.STRING, null);
+        act.addParameter("Password", DSValueType.STRING, null).setEditor("password");
         return act;
     }
 
 
-    protected void addRule(DSMap parameters) {
+    protected void addConnection(DSMap parameters) {
         String name = parameters.getString("Name");
-        put(name, new SubscriptionRule(parameters)).setTransient(true);
+        put(name, new ConnectionNode(parameters)).setTransient(true);
     }
     
     @Override
