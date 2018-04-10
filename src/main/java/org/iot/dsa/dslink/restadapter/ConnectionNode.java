@@ -21,7 +21,7 @@ public class ConnectionNode extends DSNode {
         
     }
     
-    public ConnectionNode(DSMap parameters) {
+    ConnectionNode(DSMap parameters) {
         this.parameters = parameters;
     }
 
@@ -47,7 +47,7 @@ public class ConnectionNode extends DSNode {
     
     @Override
     protected void onStable() {
-        clientProxy = new WebClientProxy(getUsername(), getPassword());
+        clientProxy = WebClientProxy.buildBasicUserPassClient(getUsername(), getPassword());
         put("Edit", makeEditAction());
     }
 
@@ -69,7 +69,7 @@ public class ConnectionNode extends DSNode {
     }
 
 
-    protected void addRule(DSMap parameters) {
+    private void addRule(DSMap parameters) {
         String name = parameters.getString("Name");
         put(name, new RuleNode(parameters)).setTransient(true);
     }
@@ -87,7 +87,7 @@ public class ConnectionNode extends DSNode {
         return act;
     }
     
-    protected void addRuleTable(DSMap parameters) {
+    private void addRuleTable(DSMap parameters) {
         String name = parameters.getString("Name");
         DSList table = parameters.getList("Table");
         put(name, new RuleTableNode(table)).setTransient(true);
@@ -120,7 +120,7 @@ public class ConnectionNode extends DSNode {
         return act;
     }
 
-    protected void edit(DSMap parameters) {
+    private void edit(DSMap parameters) {
         for (int i = 0; i < parameters.size(); i++) {
             Entry entry = parameters.getEntry(i);
             this.parameters.put(entry.getKey(), entry.getValue().copy());
@@ -129,11 +129,11 @@ public class ConnectionNode extends DSNode {
         onStable();
     }
     
-    public String getUsername() {
+    private String getUsername() {
         return parameters.getString("Username");
     }
     
-    public String getPassword() {
+    private String getPassword() {
         return parameters.getString("Password");
     }
     

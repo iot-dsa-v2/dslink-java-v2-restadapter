@@ -8,18 +8,35 @@ import org.iot.dsa.node.DSMap;
 import org.iot.dsa.node.DSMap.Entry;
 
 public class WebClientProxy {
-    
+
+    private String clientSecret;
+    private String clientID;
     private String username;
     private String password;
-    
-    
-    public WebClientProxy() {
-        
-    }
-    
-    public WebClientProxy(String username, String password) {
+    private Util.AUTH_SCHEME scheme;
+
+    private WebClientProxy(String username, String password, String clientID, String clientSecret, Util.AUTH_SCHEME scheme) {
         this.username = username;
         this.password = password;
+        this.clientID = clientID;
+        this.clientSecret = clientSecret;
+        this.scheme = scheme;
+    }
+
+    public static WebClientProxy buildNoAuthClient() {
+        return new WebClientProxy(null, null, null, null, Util.AUTH_SCHEME.NO_AUTH);
+    }
+    
+    public static WebClientProxy buildBasicUserPassClient(String username, String password) {
+        return new WebClientProxy(username, password, null, null, Util.AUTH_SCHEME.BAISC_USR_PASS);
+    }
+
+    public static WebClientProxy buildClientFlowOAuth2Client(String clientID, String clientSecret) {
+        return new WebClientProxy(null, null, clientID, clientSecret, Util.AUTH_SCHEME.OAUTH2_CLIENT);
+    }
+
+    public static WebClientProxy buildPasswordFlowOAuth2Client(String username, String password, String clientID, String clientSecret) {
+        return new WebClientProxy(username, password, clientID, clientSecret, Util.AUTH_SCHEME.OAUTH2_USR_PASS);
     }
 	
 	public Response get(String address, DSMap urlParameters) {

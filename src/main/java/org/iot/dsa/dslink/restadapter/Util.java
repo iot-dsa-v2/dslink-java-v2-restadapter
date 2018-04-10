@@ -6,6 +6,13 @@ import org.iot.dsa.node.DSList;
 import org.iot.dsa.node.DSMap;
 
 public class Util {
+
+    enum AUTH_SCHEME {
+        NO_AUTH,
+        BAISC_USR_PASS,
+        OAUTH2_CLIENT,
+        OAUTH2_USR_PASS
+    }
     
     public static Object dsElementToObject(DSElement element) {
         if (element.isBoolean()) {
@@ -30,13 +37,10 @@ public class Util {
         if (elem instanceof DSMap) {
             return (DSMap) elem;
         } else {
-            JsonReader reader = new JsonReader(elem.toString());
-            try {
+            try (JsonReader reader = new JsonReader(elem.toString())) {
                 return reader.getMap();
             } catch (Exception e) {
                 return new DSMap();
-            } finally {
-                reader.close();
             }
         }
     }
