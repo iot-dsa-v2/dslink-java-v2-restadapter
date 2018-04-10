@@ -2,6 +2,7 @@ package org.iot.dsa.dslink.restadapter;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.ws.rs.core.Response;
 import org.iot.dsa.dslink.DSIRequester;
 import org.iot.dsa.dslink.requester.ErrorType;
 import org.iot.dsa.dslink.requester.OutboundStream;
@@ -15,7 +16,7 @@ import org.iot.dsa.util.DSException;
 
 public class SubscriptionRule implements OutboundSubscribeHandler {
     
-    private ConnectionNode conn;
+    private AbstractRuleNode node;
     private OutboundStream stream;
     
     private boolean valuesInBody = false;
@@ -27,13 +28,16 @@ public class SubscriptionRule implements OutboundSubscribeHandler {
     private DSMap urlParameters;
     private String body;
     
-    public SubscriptionRule(ConnectionNode conn, String subPath, String restUrl, String method, DSMap urlParameters, String body) {
-        this.conn = conn;
+    private int rowNum;
+    
+    public SubscriptionRule(AbstractRuleNode node, String subPath, String restUrl, String method, DSMap urlParameters, String body, int rowNum) {
+        this.node = node;
         this.subPath = subPath;
         this.restUrl = restUrl;
         this.method = method;
         this.urlParameters = urlParameters;
         this.body = body;
+        this.rowNum = rowNum;
         
         learnPattern();
         DSIRequester requester = MainNode.getRequester();
@@ -96,8 +100,8 @@ public class SubscriptionRule implements OutboundSubscribeHandler {
             body = body.replaceAll("%STATUS%", status.toString());
         }
         
-        getWebClientProxy().invoke(method, restUrl, urlParams, body);
-//        info(resp.getEntity());
+        Response resp = getWebClientProxy().invoke(method, restUrl, urlParams, body);
+        node.responseRecieved(resp, rowNum);
     }
     
     public void close() {
@@ -108,7 +112,7 @@ public class SubscriptionRule implements OutboundSubscribeHandler {
     
 
     public WebClientProxy getWebClientProxy() {
-        return conn.getWebClientProxy();
+        return node.getWebClientProxy();
     }
 
 }

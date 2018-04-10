@@ -2,6 +2,7 @@ package org.iot.dsa.dslink.restadapter;
 
 import org.iot.dsa.node.DSIObject;
 import org.iot.dsa.node.DSInfo;
+import org.iot.dsa.node.DSList;
 import org.iot.dsa.node.DSMap;
 import org.iot.dsa.node.DSNode;
 import org.iot.dsa.node.DSString;
@@ -29,7 +30,7 @@ public class ConnectionNode extends DSNode {
         super.declareDefaults();
         declareDefault("Remove", makeRemoveAction());
         declareDefault("Add Rule", makeAddRuleAction());
-//        declareDefault("Add Rule Table", makeAddRuleTableAction());
+        declareDefault("Add Rule Table", makeAddRuleTableAction());
     }
     
     @Override
@@ -73,6 +74,25 @@ public class ConnectionNode extends DSNode {
         put(name, new RuleNode(parameters)).setTransient(true);
     }
     
+    private DSAction makeAddRuleTableAction() {
+        DSAction act = new DSAction() {
+            @Override
+            public ActionResult invoke(DSInfo info, ActionInvocation invocation) {
+                ((ConnectionNode) info.getParent()).addRuleTable(invocation.getParameters());
+                return null;
+            }
+        };
+        act.addParameter("Name", DSValueType.STRING, null);
+        act.addDefaultParameter("Table", new DSList(), null);
+        return act;
+    }
+    
+    protected void addRuleTable(DSMap parameters) {
+        String name = parameters.getString("Name");
+        DSList table = parameters.getList("Table");
+        put(name, new RuleTableNode(table)).setTransient(true);
+    }
+
     private DSAction makeRemoveAction() {
         return new DSAction() {
             @Override

@@ -1,19 +1,23 @@
 package org.iot.dsa.dslink.restadapter;
 
+import javax.ws.rs.core.Response;
 import org.iot.dsa.node.DSIObject;
 import org.iot.dsa.node.DSInfo;
+import org.iot.dsa.node.DSInt;
 import org.iot.dsa.node.DSMap;
-import org.iot.dsa.node.DSNode;
 import org.iot.dsa.node.DSString;
 import org.iot.dsa.node.DSMap.Entry;
 import org.iot.dsa.node.action.ActionInvocation;
 import org.iot.dsa.node.action.ActionResult;
 import org.iot.dsa.node.action.DSAction;
 
-public class RuleNode extends DSNode {
+public class RuleNode extends AbstractRuleNode {
     
     private DSMap parameters;
     private SubscriptionRule rule;
+    
+    private DSInfo lastRespCode = getInfo("Last Response Code");
+    private DSInfo lastRespData = getInfo("Last Response Data");
     
     public RuleNode() {
         
@@ -27,6 +31,8 @@ public class RuleNode extends DSNode {
     protected void declareDefaults() {
         super.declareDefaults();
         declareDefault("Remove", makeRemoveAction());
+        declareDefault("Last Response Code", DSInt.NULL).setReadOnly(true);
+        declareDefault("Last Response Data", DSString.EMPTY).setReadOnly(true);
     }
     
     @Override
@@ -43,7 +49,7 @@ public class RuleNode extends DSNode {
     
     @Override
     protected void onStable() {
-        rule = new SubscriptionRule((ConnectionNode) getParent(), getSubscribePath(), getRestUrl(), getMethod(), getURLParameters(), getBody());
+        rule = new SubscriptionRule(this, getSubscribePath(), getRestUrl(), getMethod(), getURLParameters(), getBody(), 0);
         put("Edit", makeEditAction());
     }
     
@@ -111,9 +117,14 @@ public class RuleNode extends DSNode {
     public String getBody() {
         return parameters.getString("Body");
     }
-    
-    public WebClientProxy getWebClientProxy() {
-        return ((ConnectionNode) getParent()).getWebClientProxy();
+
+    @Override
+    public void responseRecieved(Response resp, int rowNum) {
+        int status = resp.getStatus();
+        String data = resp.readEntity(String.class);
+        
+        put(lastRespCode, DSInt.valueOf(status));
+        put(lastRespData, DSString.valueOf(data));
     }
 
 }
