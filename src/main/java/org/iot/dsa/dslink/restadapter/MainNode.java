@@ -60,9 +60,9 @@ public class MainNode extends DSMainNode {
             }
         };
         act.addParameter("Name", DSValueType.STRING, null);
-        act.addParameter("ClientID", DSValueType.STRING, null);
-        act.addParameter("ClientSecret", DSValueType.STRING, null).setEditor("password");
-        act.addParameter("TokenURL", DSValueType.STRING, null);
+        act.addDefaultParameter("ClientID", DSString.valueOf(PrivateData.BRICK_CLI_CLIENT_ID), null);
+        act.addDefaultParameter("ClientSecret", DSString.valueOf(PrivateData.BRICK_CLI_SECRET), null).setEditor("password");
+        act.addDefaultParameter("TokenURL", DSString.valueOf(PrivateData.URL_TOKEN_PATH), null);
         return act;
     }
 
