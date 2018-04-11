@@ -1,26 +1,22 @@
 package org.iot.dsa.dslink.restadapter;
 
-import org.iot.dsa.node.DSIObject;
-import org.iot.dsa.node.DSInfo;
-import org.iot.dsa.node.DSList;
-import org.iot.dsa.node.DSMap;
-import org.iot.dsa.node.DSNode;
-import org.iot.dsa.node.DSString;
-import org.iot.dsa.node.DSValueType;
+import org.iot.dsa.dslink.restadapter.Util.AUTH_SCHEME;
+import org.iot.dsa.node.*;
 import org.iot.dsa.node.DSMap.Entry;
 import org.iot.dsa.node.action.ActionInvocation;
 import org.iot.dsa.node.action.ActionResult;
 import org.iot.dsa.node.action.DSAction;
+import org.iot.dsa.util.DSException;
 
 public class ConnectionNode extends DSNode {
-    
+
     private DSMap parameters;
     private WebClientProxy clientProxy;
-    
+
     public ConnectionNode() {
-        
+
     }
-    
+
     ConnectionNode(DSMap parameters) {
         this.parameters = parameters;
     }
@@ -32,7 +28,7 @@ public class ConnectionNode extends DSNode {
         declareDefault("Add Rule", makeAddRuleAction());
         declareDefault("Add Rule Table", makeAddRuleTableAction());
     }
-    
+
     @Override
     protected void onStarted() {
         if (this.parameters == null) {
@@ -44,13 +40,24 @@ public class ConnectionNode extends DSNode {
             put("parameters", parameters.copy()).setHidden(true);
         }
     }
-    
+
     @Override
     protected void onStable() {
-        if (getUsername().isEmpty()) {
-            clientProxy = WebClientProxy.buildNoAuthClient();
-        } else {
-            clientProxy = WebClientProxy.buildBasicUserPassClient(getUsername(), getPassword());
+        switch (AUTH_SCHEME.valueOf(getAuthScheme())) {
+            case NO_AUTH:
+                clientProxy = WebClientProxy.buildNoAuthClient();
+                break;
+            case BASIC_USR_PASS:
+                clientProxy = WebClientProxy.buildBasicUserPassClient(getUsername(), getPassword());
+                break;
+            case OAUTH2_CLIENT:
+                //clientProxy = WebClientProxy.buildClientFlowOAuth2Client(//PARAMETERS)
+                break;
+            case OAUTH2_USR_PASS:
+                //clientProxy = WebClientProxy.buildPasswordFlowOAuth2Client(//PARAMETERS)
+                break;
+            default:
+                DSException.throwRuntime(new RuntimeException("Unsupported AuthScheme: " + getAuthScheme()));
         }
         put("Edit", makeEditAction());
     }
@@ -77,7 +84,7 @@ public class ConnectionNode extends DSNode {
         String name = parameters.getString("Name");
         put(name, new RuleNode(parameters)).setTransient(true);
     }
-    
+
     private DSAction makeAddRuleTableAction() {
         DSAction act = new DSAction() {
             @Override
@@ -90,7 +97,7 @@ public class ConnectionNode extends DSNode {
         act.addDefaultParameter("Table", new DSList(), null);
         return act;
     }
-    
+
     private void addRuleTable(DSMap parameters) {
         String name = parameters.getString("Name");
         DSList table = parameters.getList("Table");
@@ -110,7 +117,7 @@ public class ConnectionNode extends DSNode {
     private void delete() {
         getParent().remove(getInfo());
     }
-    
+
     private DSIObject makeEditAction() {
         DSAction act = new DSAction() {
             @Override
@@ -132,15 +139,19 @@ public class ConnectionNode extends DSNode {
         put("parameters", parameters.copy());
         onStable();
     }
-    
+
     private String getUsername() {
         return parameters.getString("Username");
     }
-    
+
     private String getPassword() {
         return parameters.getString("Password");
     }
-    
+
+    private String getAuthScheme() {
+        return parameters.getString("ConnType");
+    }
+
     public WebClientProxy getWebClientProxy() {
         return clientProxy;
     }
