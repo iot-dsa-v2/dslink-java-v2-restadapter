@@ -97,7 +97,7 @@ public class MainNode extends DSMainNode {
     }
 
     private void addBasicConnection(DSMap parameters) {
-        if (parameters.getString("Username").isEmpty()) {
+        if (parameters.getString("Username") == null) {
             parameters.put("ConnType", DSString.valueOf(Util.AUTH_SCHEME.NO_AUTH));
         } else {
             parameters.put("ConnType", DSString.valueOf(Util.AUTH_SCHEME.NO_AUTH));
