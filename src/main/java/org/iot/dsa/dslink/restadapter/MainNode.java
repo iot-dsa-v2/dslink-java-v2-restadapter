@@ -32,9 +32,9 @@ public class MainNode extends DSMainNode {
     @Override
     protected void declareDefaults() {
         super.declareDefaults();
-        declareDefault("Basic Connection", makeAddBasicConnectionAction());
-        declareDefault("OAuth2 Client Flow", makeAddOauthClientConnectionAction());
-        declareDefault("OAuth2 Passwrd Flow", makeAddOauthPassConnectionAction());
+        declareDefault(Constants.ACT_ADD_BASIC_CONN, makeAddBasicConnectionAction());
+        declareDefault(Constants.ACT_ADD_OAUTH_CLIENT_CONN, makeAddOauthClientConnectionAction());
+        declareDefault(Constants.ACT_ADD_OAUTH_PASSWORD_CONN, makeAddOauthPassConnectionAction());
     }
 
     private DSAction makeAddBasicConnectionAction() {
@@ -45,9 +45,9 @@ public class MainNode extends DSMainNode {
                 return null;
             }
         };
-        act.addParameter("Name", DSValueType.STRING, null);
-        act.addParameter("Username", DSValueType.STRING, null);
-        act.addParameter("Password", DSValueType.STRING, null).setEditor("password");
+        act.addParameter(Constants.NAME, DSValueType.STRING, null);
+        act.addParameter(Constants.USERNAME, DSValueType.STRING, null);
+        act.addParameter(Constants.PASSWORD, DSValueType.STRING, null).setEditor("password");
         return act;
     }
 
@@ -59,9 +59,9 @@ public class MainNode extends DSMainNode {
                 return null;
             }
         };
-        act.addParameter("Name", DSValueType.STRING, null);
-        act.addParameter("ClientID", DSValueType.STRING, null);
-        act.addParameter("ClientSecret", DSValueType.STRING, null).setEditor("password");
+        act.addParameter(Constants.NAME, DSValueType.STRING, null);
+        act.addParameter(Constants.CLIENT_ID, DSValueType.STRING, null);
+        act.addParameter(Constants.CLIENT_SECRET, DSValueType.STRING, null).setEditor("password");
         return act;
     }
 
@@ -73,34 +73,34 @@ public class MainNode extends DSMainNode {
                 return null;
             }
         };
-        act.addParameter("Name", DSValueType.STRING, null);
-        act.addParameter("Username", DSValueType.STRING, null);
-        act.addParameter("Password", DSValueType.STRING, null).setEditor("password");
-        act.addParameter("ClientID", DSValueType.STRING, null);
-        act.addParameter("ClientSecret", DSValueType.STRING, null).setEditor("password");
+        act.addParameter(Constants.NAME, DSValueType.STRING, null);
+        act.addParameter(Constants.USERNAME, DSValueType.STRING, null);
+        act.addParameter(Constants.PASSWORD, DSValueType.STRING, null).setEditor("password");
+        act.addParameter(Constants.CLIENT_ID, DSValueType.STRING, null);
+        act.addParameter(Constants.CLIENT_SECRET, DSValueType.STRING, null).setEditor("password");
         return act;
     }
 
 
     private void addOAuthClientConnection(DSMap parameters) {
-        parameters.put("ConnType", DSString.valueOf(Util.AUTH_SCHEME.OAUTH2_CLIENT));
-        String name = parameters.getString("Name");
+        parameters.put(Constants.CONNTYPE, DSString.valueOf(Util.AUTH_SCHEME.OAUTH2_CLIENT));
+        String name = parameters.getString(Constants.NAME);
         put(name, new ConnectionNode(parameters)).setTransient(true);
     }
 
     private void addOAuthPasswordConnection(DSMap parameters) {
-        parameters.put("ConnType", DSString.valueOf(Util.AUTH_SCHEME.OAUTH2_USR_PASS));
-        String name = parameters.getString("Name");
+        parameters.put(Constants.CONNTYPE, DSString.valueOf(Util.AUTH_SCHEME.OAUTH2_USR_PASS));
+        String name = parameters.getString(Constants.NAME);
         put(name, new ConnectionNode(parameters)).setTransient(true);
     }
 
     private void addBasicConnection(DSMap parameters) {
-        if (parameters.getString("Username").isEmpty()) {
-            parameters.put("ConnType", DSString.valueOf(Util.AUTH_SCHEME.NO_AUTH));
+        if (parameters.getString(Constants.USERNAME).isEmpty()) {
+            parameters.put(Constants.CONNTYPE, DSString.valueOf(Util.AUTH_SCHEME.NO_AUTH));
         } else {
-            parameters.put("ConnType", DSString.valueOf(Util.AUTH_SCHEME.NO_AUTH));
+            parameters.put(Constants.CONNTYPE, DSString.valueOf(Util.AUTH_SCHEME.BASIC_USR_PASS));
         }
-        String name = parameters.getString("Name");
+        String name = parameters.getString(Constants.NAME);
         put(name, new ConnectionNode(parameters)).setTransient(true);
     }
     

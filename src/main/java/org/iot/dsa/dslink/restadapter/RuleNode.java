@@ -16,8 +16,8 @@ public class RuleNode extends AbstractRuleNode {
     private DSMap parameters;
     private SubscriptionRule rule;
     
-    private DSInfo lastRespCode = getInfo("Last Response Code");
-    private DSInfo lastRespData = getInfo("Last Response Data");
+    private DSInfo lastRespCode = getInfo(Constants.LAST_RESPONSE_CODE);
+    private DSInfo lastRespData = getInfo(Constants.LAST_RESPONSE_DATA);
     
     public RuleNode() {
         
@@ -30,27 +30,27 @@ public class RuleNode extends AbstractRuleNode {
     @Override
     protected void declareDefaults() {
         super.declareDefaults();
-        declareDefault("Remove", makeRemoveAction());
-        declareDefault("Last Response Code", DSInt.NULL).setReadOnly(true);
-        declareDefault("Last Response Data", DSString.EMPTY).setReadOnly(true);
+        declareDefault(Constants.ACT_REMOVE, makeRemoveAction());
+        declareDefault(Constants.LAST_RESPONSE_CODE, DSInt.NULL).setReadOnly(true);
+        declareDefault(Constants.LAST_RESPONSE_DATA, DSString.EMPTY).setReadOnly(true);
     }
     
     @Override
     protected void onStarted() {
         if (this.parameters == null) {
-            DSIObject o = get("parameters");
+            DSIObject o = get(Constants.PARAMS);
             if (o instanceof DSMap) {
                 this.parameters = (DSMap) o;
             }
         } else {
-            put("parameters", parameters.copy()).setHidden(true);
+            put(Constants.PARAMS, parameters.copy()).setHidden(true);
         }
     }
     
     @Override
     protected void onStable() {
         rule = new SubscriptionRule(this, getSubscribePath(), getRestUrl(), getMethod(), getURLParameters(), getBody(), 0);
-        put("Edit", makeEditAction());
+        put(Constants.ACT_EDIT, makeEditAction());
     }
     
     private DSAction makeRemoveAction() {
@@ -78,11 +78,11 @@ public class RuleNode extends AbstractRuleNode {
                 return null;
             }
         };
-        act.addDefaultParameter("Subscribe Path", DSString.valueOf(getSubscribePath()), null);
-        act.addDefaultParameter("REST URL", DSString.valueOf(getRestUrl()), null);
-        act.addDefaultParameter("Method", DSString.valueOf(getMethod()), null);
-        act.addDefaultParameter("URL Parameters", getURLParameters().copy(), null);
-        act.addDefaultParameter("Body", DSString.valueOf(getBody()), null);
+        act.addDefaultParameter(Constants.SUB_PATH, DSString.valueOf(getSubscribePath()), null);
+        act.addDefaultParameter(Constants.REST_URL, DSString.valueOf(getRestUrl()), null);
+        act.addDefaultParameter(Constants.REST_METHOD, DSString.valueOf(getMethod()), null);
+        act.addDefaultParameter(Constants.URL_PARAMETERS, getURLParameters().copy(), null);
+        act.addDefaultParameter(Constants.REQUEST_BODY, DSString.valueOf(getBody()), null);
         return act;
     }
 
@@ -91,7 +91,7 @@ public class RuleNode extends AbstractRuleNode {
             Entry entry = parameters.getEntry(i);
             this.parameters.put(entry.getKey(), entry.getValue().copy());
         }
-        put("parameters", parameters.copy());
+        put(Constants.PARAMS, parameters.copy());
         if (rule != null) {
             rule.close();
         }
@@ -99,23 +99,23 @@ public class RuleNode extends AbstractRuleNode {
     }
     
     public String getSubscribePath() {
-        return parameters.getString("Subscribe Path");
+        return parameters.getString(Constants.SUB_PATH);
     }
     
     public String getRestUrl() {
-        return parameters.getString("REST URL");
+        return parameters.getString(Constants.REST_URL);
     }
     
     public String getMethod() {
-        return parameters.getString("Method");
+        return parameters.getString(Constants.REST_METHOD);
     }
     
     public DSMap getURLParameters() {
-        return parameters.getMap("URL Parameters");
+        return parameters.getMap(Constants.URL_PARAMETERS);
     }
     
     public String getBody() {
-        return parameters.getString("Body");
+        return parameters.getString(Constants.REQUEST_BODY);
     }
 
     @Override

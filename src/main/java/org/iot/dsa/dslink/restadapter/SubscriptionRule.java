@@ -51,13 +51,13 @@ public class SubscriptionRule implements OutboundSubscribeHandler {
             DSElement val = entry.getValue();
             if (val.isString()) {
                 String str = val.toString();
-                if (str.indexOf("%VALUE%") != -1 || str.indexOf("%TIMESTAMP%") != -1 || str.indexOf("%STATUS%") != -1) {
+                if (str.indexOf(Constants.PLACEHOLDER_VALUE) != -1 || str.indexOf(Constants.PLACEHOLDER_TS) != -1 || str.indexOf(Constants.PLACEHOLDER_STATUS) != -1) {
                     urlParamsWithValues.add(entry.getKey());
                 }
             }
         }
         if (body != null) {
-            if (body.indexOf("%VALUE%") != -1 || body.indexOf("%TIMESTAMP%") != -1 || body.indexOf("%STATUS%") != -1) {
+            if (body.indexOf(Constants.PLACEHOLDER_VALUE) != -1 || body.indexOf(Constants.PLACEHOLDER_TS) != -1 || body.indexOf(Constants.PLACEHOLDER_STATUS) != -1) {
                 valuesInBody = true;
             }
         }
@@ -84,20 +84,20 @@ public class SubscriptionRule implements OutboundSubscribeHandler {
         String body = this.body;
         for (String key: urlParamsWithValues) {
             String pattern = urlParams.getString(key);
-            if ("%VALUE%".equals(pattern)) {
+            if (Constants.PLACEHOLDER_VALUE.equals(pattern)) {
                 urlParams.put(key, value);
             } else {
-                pattern = pattern.replaceAll("%VALUE%", value.toString());
-                pattern = pattern.replaceAll("%TIMESTAMP%", dateTime.toString());
-                pattern = pattern.replaceAll("%STATUS%", status.toString());
+                pattern = pattern.replaceAll(Constants.PLACEHOLDER_VALUE, value.toString());
+                pattern = pattern.replaceAll(Constants.PLACEHOLDER_TS, dateTime.toString());
+                pattern = pattern.replaceAll(Constants.PLACEHOLDER_STATUS, status.toString());
                 urlParams.put(key, pattern);
             }
         }
         
         if (valuesInBody) {
-            body = body.replaceAll("%VALUE%", value.toString());
-            body = body.replaceAll("%TIMESTAMP%", dateTime.toString());
-            body = body.replaceAll("%STATUS%", status.toString());
+            body = body.replaceAll(Constants.PLACEHOLDER_VALUE, value.toString());
+            body = body.replaceAll(Constants.PLACEHOLDER_TS, dateTime.toString());
+            body = body.replaceAll(Constants.PLACEHOLDER_STATUS, status.toString());
         }
         
         Response resp = getWebClientProxy().invoke(method, restUrl, urlParams, body);

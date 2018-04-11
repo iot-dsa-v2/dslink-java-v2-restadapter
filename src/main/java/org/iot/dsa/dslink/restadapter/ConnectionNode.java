@@ -24,20 +24,20 @@ public class ConnectionNode extends DSNode {
     @Override
     protected void declareDefaults() {
         super.declareDefaults();
-        declareDefault("Remove", makeRemoveAction());
-        declareDefault("Add Rule", makeAddRuleAction());
-        declareDefault("Add Rule Table", makeAddRuleTableAction());
+        declareDefault(Constants.ACT_REMOVE, makeRemoveAction());
+        declareDefault(Constants.ACT_ADD_RULE, makeAddRuleAction());
+        declareDefault(Constants.ACT_ADD_RULE_TABLE, makeAddRuleTableAction());
     }
 
     @Override
     protected void onStarted() {
         if (this.parameters == null) {
-            DSIObject o = get("parameters");
+            DSIObject o = get(Constants.PARAMS);
             if (o instanceof DSMap) {
                 this.parameters = (DSMap) o;
             }
         } else {
-            put("parameters", parameters.copy()).setHidden(true);
+            put(Constants.PARAMS, parameters.copy()).setHidden(true);
         }
     }
 
@@ -59,7 +59,7 @@ public class ConnectionNode extends DSNode {
             default:
                 DSException.throwRuntime(new RuntimeException("Unsupported AuthScheme: " + getAuthScheme()));
         }
-        put("Edit", makeEditAction());
+        put(Constants.ACT_EDIT, makeEditAction());
     }
 
     private DSAction makeAddRuleAction() {
@@ -70,18 +70,18 @@ public class ConnectionNode extends DSNode {
                 return null;
             }
         };
-        act.addParameter("Name", DSValueType.STRING, null);
-        act.addParameter("Subscribe Path", DSValueType.STRING, null);
-        act.addParameter("REST URL", DSValueType.STRING, null);
-        act.addDefaultParameter("Method", DSString.valueOf("POST"), null);
-        act.addDefaultParameter("URL Parameters", new DSMap(), null);
-        act.addParameter("Body", DSValueType.STRING, null);
+        act.addParameter(Constants.NAME, DSValueType.STRING, null);
+        act.addParameter(Constants.SUB_PATH, DSValueType.STRING, null);
+        act.addParameter(Constants.REST_URL, DSValueType.STRING, null);
+        act.addDefaultParameter(Constants.REST_METHOD, DSString.valueOf("POST"), null);
+        act.addDefaultParameter(Constants.URL_PARAMETERS, new DSMap(), null);
+        act.addParameter(Constants.REQUEST_BODY, DSValueType.STRING, null);
         return act;
     }
 
 
     private void addRule(DSMap parameters) {
-        String name = parameters.getString("Name");
+        String name = parameters.getString(Constants.NAME);
         put(name, new RuleNode(parameters)).setTransient(true);
     }
 
@@ -93,14 +93,14 @@ public class ConnectionNode extends DSNode {
                 return null;
             }
         };
-        act.addParameter("Name", DSValueType.STRING, null);
-        act.addDefaultParameter("Table", new DSList(), null);
+        act.addParameter(Constants.NAME, DSValueType.STRING, null);
+        act.addDefaultParameter(Constants.RULE_TABLE, new DSList(), null);
         return act;
     }
 
     private void addRuleTable(DSMap parameters) {
-        String name = parameters.getString("Name");
-        DSList table = parameters.getList("Table");
+        String name = parameters.getString(Constants.NAME);
+        DSList table = parameters.getList(Constants.RULE_TABLE);
         put(name, new RuleTableNode(table)).setTransient(true);
     }
 
@@ -126,8 +126,15 @@ public class ConnectionNode extends DSNode {
                 return null;
             }
         };
-        act.addDefaultParameter("Username", DSString.valueOf(getUsername()), null);
-        act.addDefaultParameter("Password", DSString.valueOf(getPassword()), null).setEditor("password");
+        String scheme = getAuthScheme();
+        if (!Util.AUTH_SCHEME.OAUTH2_CLIENT.equals(scheme)) {
+            act.addDefaultParameter(Constants.USERNAME, DSString.valueOf(getUsername()), null);
+            act.addDefaultParameter(Constants.PASSWORD, DSString.valueOf(getPassword()), null).setEditor("password");
+        }
+        if (Util.AUTH_SCHEME.OAUTH2_CLIENT.equals(scheme) || Util.AUTH_SCHEME.OAUTH2_USR_PASS.equals(scheme)) {
+            act.addDefaultParameter(Constants.CLIENT_ID, DSString.valueOf(getClientId()), null);
+            act.addParameter(Constants.CLIENT_SECRET, DSString.valueOf(getClientSecret()), null).setEditor("password");
+        }
         return act;
     }
 
@@ -136,20 +143,28 @@ public class ConnectionNode extends DSNode {
             Entry entry = parameters.getEntry(i);
             this.parameters.put(entry.getKey(), entry.getValue().copy());
         }
-        put("parameters", parameters.copy());
+        put(Constants.PARAMS, parameters.copy());
         onStable();
     }
 
     private String getUsername() {
-        return parameters.getString("Username");
+        return parameters.getString(Constants.USERNAME);
     }
 
     private String getPassword() {
-        return parameters.getString("Password");
+        return parameters.getString(Constants.PASSWORD);
+    }
+    
+    private String getClientId() {
+        return parameters.getString(Constants.CLIENT_ID);
+    }
+
+    private String getClientSecret() {
+        return parameters.getString(Constants.CLIENT_SECRET);
     }
 
     private String getAuthScheme() {
-        return parameters.getString("ConnType");
+        return parameters.getString(Constants.CONNTYPE);
     }
 
     public WebClientProxy getWebClientProxy() {

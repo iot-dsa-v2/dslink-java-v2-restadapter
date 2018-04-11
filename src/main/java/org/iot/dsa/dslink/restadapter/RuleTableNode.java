@@ -18,7 +18,7 @@ public class RuleTableNode extends AbstractRuleNode {
     private DSList table;
     private final List<SubscriptionRule> rules = new ArrayList<SubscriptionRule>();
     
-    private DSInfo lastResponses = getInfo("Last Responses");
+    private DSInfo lastResponses = getInfo(Constants.LAST_RESPONSES_TABLE);
     
     public RuleTableNode() {
     }
@@ -30,26 +30,26 @@ public class RuleTableNode extends AbstractRuleNode {
     @Override
     protected void declareDefaults() {
         super.declareDefaults();
-        declareDefault("Remove", makeRemoveAction());
-        declareDefault("Last Responses", new DSList()).setReadOnly(true);
+        declareDefault(Constants.ACT_REMOVE, makeRemoveAction());
+        declareDefault(Constants.LAST_RESPONSES_TABLE, new DSList()).setReadOnly(true);
     }
     
     @Override
     protected void onStarted() {
         if (this.table == null) {
-            DSIObject o = get("table");
+            DSIObject o = get(Constants.RULE_TABLE);
             if (o instanceof DSList) {
                 this.table = (DSList) o;
             }
         } else {
-            put("table", table.copy()).setHidden(true);
+            put(Constants.RULE_TABLE, table.copy()).setHidden(true);
         }
     }
     
     @Override
     protected void onStable() {
         parseRules();
-        put("Edit", makeEditAction());
+        put(Constants.ACT_EDIT, makeEditAction());
     }
     
     private void parseRules() {
@@ -61,11 +61,11 @@ public class RuleTableNode extends AbstractRuleNode {
             DSMap urlParams;
             if (elem instanceof DSMap) {
                 DSMap row = (DSMap) elem;
-                subPath = row.getString("Subscribe Path");
-                restUrl = row.getString("REST URL");
-                method = row.getString("Method");
-                urlParams = Util.dsElementToMap(row.get("URL Parameters"));
-                body = row.getString("Body");
+                subPath = row.getString(Constants.SUB_PATH);
+                restUrl = row.getString(Constants.REST_URL);
+                method = row.getString(Constants.REST_METHOD);
+                urlParams = Util.dsElementToMap(row.get(Constants.URL_PARAMETERS));
+                body = row.getString(Constants.REQUEST_BODY);
                 SubscriptionRule rule = new SubscriptionRule(this, subPath, restUrl, method, urlParams, body, i);
                 rules.add(rule);
             } else if (elem instanceof DSList) {
@@ -112,13 +112,13 @@ public class RuleTableNode extends AbstractRuleNode {
                 return null;
             }
         };        
-        act.addDefaultParameter("Table", table.copy(), null);
+        act.addDefaultParameter(Constants.RULE_TABLE, table.copy(), null);
         return act;
     }
 
     protected void edit(DSMap parameters) {
-        this.table = parameters.getList("Table").copy();
-        put("table", table.copy());
+        this.table = parameters.getList(Constants.RULE_TABLE).copy();
+        put(Constants.RULE_TABLE, table.copy());
         closeRules();
         onStable();
     }
@@ -130,8 +130,8 @@ public class RuleTableNode extends AbstractRuleNode {
         
         DSList respTable = lastResponses.getElement().toList();
         DSMap respMap = respTable.getMap(rowNum);
-        respMap.put("Last Response Code", status);
-        respMap.put("Last Response Data", data);
+        respMap.put(Constants.LAST_RESPONSE_CODE, status);
+        respMap.put(Constants.LAST_RESPONSE_DATA, data);
         fire(VALUE_TOPIC, DSValueTopic.Event.CHILD_CHANGED, lastResponses);
     }
 
