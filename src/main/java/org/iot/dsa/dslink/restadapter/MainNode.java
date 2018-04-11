@@ -62,6 +62,7 @@ public class MainNode extends DSMainNode {
         act.addParameter("Name", DSValueType.STRING, null);
         act.addParameter("ClientID", DSValueType.STRING, null);
         act.addParameter("ClientSecret", DSValueType.STRING, null).setEditor("password");
+        act.addParameter("TokenURL", DSValueType.STRING, null);
         return act;
     }
 
@@ -78,6 +79,7 @@ public class MainNode extends DSMainNode {
         act.addParameter("Password", DSValueType.STRING, null).setEditor("password");
         act.addParameter("ClientID", DSValueType.STRING, null);
         act.addParameter("ClientSecret", DSValueType.STRING, null).setEditor("password");
+        act.addParameter("TokenURL", DSValueType.STRING, null);
         return act;
     }
 
