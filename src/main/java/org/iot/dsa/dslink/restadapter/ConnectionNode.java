@@ -47,7 +47,11 @@ public class ConnectionNode extends DSNode {
     
     @Override
     protected void onStable() {
-        clientProxy = WebClientProxy.buildBasicUserPassClient(getUsername(), getPassword());
+        if (getUsername().isEmpty()) {
+            clientProxy = WebClientProxy.buildNoAuthClient();
+        } else {
+            clientProxy = WebClientProxy.buildBasicUserPassClient(getUsername(), getPassword());
+        }
         put("Edit", makeEditAction());
     }
 

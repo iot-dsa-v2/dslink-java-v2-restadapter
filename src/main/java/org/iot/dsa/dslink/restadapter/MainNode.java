@@ -6,6 +6,7 @@ import org.iot.dsa.dslink.DSMainNode;
 import org.iot.dsa.dslink.DSLinkConnection.Listener;
 import org.iot.dsa.node.DSInfo;
 import org.iot.dsa.node.DSMap;
+import org.iot.dsa.node.DSString;
 import org.iot.dsa.node.DSValueType;
 import org.iot.dsa.node.action.ActionInvocation;
 import org.iot.dsa.node.action.ActionResult;
@@ -31,14 +32,16 @@ public class MainNode extends DSMainNode {
     @Override
     protected void declareDefaults() {
         super.declareDefaults();
-        declareDefault("Add Connection", makeAddConnectionAction());
+        declareDefault("Basic Connection", makeAddBasicConnectionAction());
+        declareDefault("OAuth2 Client Flow", makeAddOauthClientConnectionAction());
+        declareDefault("OAuth2 Passwrd Flow", makeAddOauthPassConnectionAction());
     }
 
-    private DSAction makeAddConnectionAction() {
+    private DSAction makeAddBasicConnectionAction() {
         DSAction act = new DSAction() {
             @Override
             public ActionResult invoke(DSInfo info, ActionInvocation invocation) {
-                ((MainNode) info.getParent()).addConnection(invocation.getParameters());
+                ((MainNode) info.getParent()).addBasicConnection(invocation.getParameters());
                 return null;
             }
         };
@@ -48,8 +51,55 @@ public class MainNode extends DSMainNode {
         return act;
     }
 
+    private DSAction makeAddOauthClientConnectionAction() {
+        DSAction act = new DSAction() {
+            @Override
+            public ActionResult invoke(DSInfo info, ActionInvocation invocation) {
+                ((MainNode) info.getParent()).addOAuthClientConnection(invocation.getParameters());
+                return null;
+            }
+        };
+        act.addParameter("Name", DSValueType.STRING, null);
+        act.addParameter("ClientID", DSValueType.STRING, null);
+        act.addParameter("ClientSecret", DSValueType.STRING, null).setEditor("password");
+        return act;
+    }
 
-    protected void addConnection(DSMap parameters) {
+    private DSAction makeAddOauthPassConnectionAction() {
+        DSAction act = new DSAction() {
+            @Override
+            public ActionResult invoke(DSInfo info, ActionInvocation invocation) {
+                ((MainNode) info.getParent()).addOAuthPasswordConnection(invocation.getParameters());
+                return null;
+            }
+        };
+        act.addParameter("Name", DSValueType.STRING, null);
+        act.addParameter("Username", DSValueType.STRING, null);
+        act.addParameter("Password", DSValueType.STRING, null).setEditor("password");
+        act.addParameter("ClientID", DSValueType.STRING, null);
+        act.addParameter("ClientSecret", DSValueType.STRING, null).setEditor("password");
+        return act;
+    }
+
+
+    private void addOAuthClientConnection(DSMap parameters) {
+        parameters.put("ConnType", DSString.valueOf(Util.AUTH_SCHEME.OAUTH2_CLIENT));
+        String name = parameters.getString("Name");
+        put(name, new ConnectionNode(parameters)).setTransient(true);
+    }
+
+    private void addOAuthPasswordConnection(DSMap parameters) {
+        parameters.put("ConnType", DSString.valueOf(Util.AUTH_SCHEME.OAUTH2_USR_PASS));
+        String name = parameters.getString("Name");
+        put(name, new ConnectionNode(parameters)).setTransient(true);
+    }
+
+    private void addBasicConnection(DSMap parameters) {
+        if (parameters.getString("Username").isEmpty()) {
+            parameters.put("ConnType", DSString.valueOf(Util.AUTH_SCHEME.NO_AUTH));
+        } else {
+            parameters.put("ConnType", DSString.valueOf(Util.AUTH_SCHEME.NO_AUTH));
+        }
         String name = parameters.getString("Name");
         put(name, new ConnectionNode(parameters)).setTransient(true);
     }

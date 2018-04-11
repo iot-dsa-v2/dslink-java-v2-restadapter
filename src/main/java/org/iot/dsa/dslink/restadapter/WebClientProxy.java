@@ -11,7 +11,6 @@ import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.function.Consumer;
 
 public class WebClientProxy {
 
@@ -32,7 +31,7 @@ public class WebClientProxy {
     }
 
     public static WebClientProxy buildBasicUserPassClient(String username, String password) {
-        return new WebClientProxy(username, password, Util.AUTH_SCHEME.BAISC_USR_PASS, null);
+        return new WebClientProxy(username, password, Util.AUTH_SCHEME.BASIC_USR_PASS, null);
     }
 
     public static WebClientProxy buildClientFlowOAuth2Client(String clientID, String clientSecret, String tokenURL) {
@@ -115,7 +114,7 @@ public class WebClientProxy {
             case NO_AUTH:
                 client = WebClient.create(address);
                 break;
-            case BAISC_USR_PASS:
+            case BASIC_USR_PASS:
                 client = WebClient.create(address, username, password, null);
                 break;
             case OAUTH2_CLIENT:
