@@ -87,13 +87,13 @@ public class MainNode extends DSMainNode {
     private void addOAuthClientConnection(DSMap parameters) {
         parameters.put(Constants.CONNTYPE, DSString.valueOf(Util.AUTH_SCHEME.OAUTH2_CLIENT));
         String name = parameters.getString(Constants.NAME);
-        put(name, new ConnectionNode(parameters)).setTransient(true);
+        put(name, new ConnectionNode(parameters));
     }
 
     private void addOAuthPasswordConnection(DSMap parameters) {
         parameters.put(Constants.CONNTYPE, DSString.valueOf(Util.AUTH_SCHEME.OAUTH2_USR_PASS));
         String name = parameters.getString(Constants.NAME);
-        put(name, new ConnectionNode(parameters)).setTransient(true);
+        put(name, new ConnectionNode(parameters));
     }
 
     private void addBasicConnection(DSMap parameters) {
@@ -103,7 +103,7 @@ public class MainNode extends DSMainNode {
             parameters.put(Constants.CONNTYPE, DSString.valueOf(Util.AUTH_SCHEME.BASIC_USR_PASS));
         }
         String name = parameters.getString(Constants.NAME);
-        put(name, new ConnectionNode(parameters)).setTransient(true);
+        put(name, new ConnectionNode(parameters));
     }
     
     @Override
