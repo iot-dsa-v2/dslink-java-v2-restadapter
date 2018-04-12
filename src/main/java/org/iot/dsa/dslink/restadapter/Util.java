@@ -8,21 +8,10 @@ import org.iot.dsa.node.DSMap;
 public class Util {
 
     enum AUTH_SCHEME {
-        NO_AUTH("No_Auth"),
-        BASIC_USR_PASS("Baisc_Usr_Pass"),
-        OAUTH2_CLIENT("Auth2_Cli"),
-        OAUTH2_USR_PASS("Auth2_Usr_Pass");
-
-        String val;
-
-        AUTH_SCHEME(String val) {
-            this.val = val;
-        }
-
-        @Override
-        public String toString() {
-            return val;
-        }
+        NO_AUTH,
+        BASIC_USR_PASS,
+        OAUTH2_CLIENT,
+        OAUTH2_USR_PASS
     }
     
     public static Object dsElementToObject(DSElement element) {

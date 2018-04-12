@@ -59,9 +59,10 @@ public class MainNode extends DSMainNode {
                 return null;
             }
         };
-        act.addParameter(Constants.NAME, DSValueType.STRING, null);
-        act.addParameter(Constants.CLIENT_ID, DSValueType.STRING, null);
-        act.addParameter(Constants.CLIENT_SECRET, DSValueType.STRING, null).setEditor("password");
+        act.addParameter("Name", DSValueType.STRING, null);
+        act.addDefaultParameter("ClientID", DSString.valueOf(PrivateData.BRICK_CLI_CLIENT_ID), null);
+        act.addDefaultParameter("ClientSecret", DSString.valueOf(PrivateData.BRICK_CLI_SECRET), null).setEditor("password");
+        act.addDefaultParameter("TokenURL", DSString.valueOf(PrivateData.URL_TOKEN_PATH), null);
         return act;
     }
 
@@ -78,6 +79,7 @@ public class MainNode extends DSMainNode {
         act.addParameter(Constants.PASSWORD, DSValueType.STRING, null).setEditor("password");
         act.addParameter(Constants.CLIENT_ID, DSValueType.STRING, null);
         act.addParameter(Constants.CLIENT_SECRET, DSValueType.STRING, null).setEditor("password");
+        act.addParameter("TokenURL", DSValueType.STRING, null);
         return act;
     }
 
@@ -95,7 +97,7 @@ public class MainNode extends DSMainNode {
     }
 
     private void addBasicConnection(DSMap parameters) {
-        if (parameters.getString(Constants.USERNAME).isEmpty()) {
+        if (parameters.getString(Constants.USERNAME) == null) {
             parameters.put(Constants.CONNTYPE, DSString.valueOf(Util.AUTH_SCHEME.NO_AUTH));
         } else {
             parameters.put(Constants.CONNTYPE, DSString.valueOf(Util.AUTH_SCHEME.BASIC_USR_PASS));
