@@ -59,10 +59,10 @@ public class MainNode extends DSMainNode {
                 return null;
             }
         };
-        act.addParameter("Name", DSValueType.STRING, null);
-        act.addDefaultParameter("ClientID", DSString.valueOf(PrivateData.BRICK_CLI_CLIENT_ID), null);
-        act.addDefaultParameter("ClientSecret", DSString.valueOf(PrivateData.BRICK_CLI_SECRET), null).setEditor("password");
-        act.addDefaultParameter("TokenURL", DSString.valueOf(PrivateData.URL_TOKEN_PATH), null);
+        act.addParameter(Constants.NAME, DSValueType.STRING, null);
+        act.addDefaultParameter(Constants.CLIENT_ID, DSString.valueOf(PrivateData.BRICK_CLI_CLIENT_ID), null);
+        act.addDefaultParameter(Constants.CLIENT_SECRET, DSString.valueOf(PrivateData.BRICK_CLI_SECRET), null).setEditor("password");
+        act.addDefaultParameter(Constants.TOKEN_URL, DSString.valueOf(PrivateData.URL_TOKEN_PATH), null);
         return act;
     }
 
@@ -79,7 +79,7 @@ public class MainNode extends DSMainNode {
         act.addParameter(Constants.PASSWORD, DSValueType.STRING, null).setEditor("password");
         act.addParameter(Constants.CLIENT_ID, DSValueType.STRING, null);
         act.addParameter(Constants.CLIENT_SECRET, DSValueType.STRING, null).setEditor("password");
-        act.addParameter("TokenURL", DSValueType.STRING, null);
+        act.addParameter(Constants.TOKEN_URL, DSValueType.STRING, null);
         return act;
     }
 

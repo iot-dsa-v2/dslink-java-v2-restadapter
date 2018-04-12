@@ -9,6 +9,7 @@ public class Constants {
     public static final String PASSWORD = "Password";
     public static final String CLIENT_ID = "Client ID";
     public static final String CLIENT_SECRET = "Client Secret";
+    public static final String TOKEN_URL = "Token URL";
     public static final String CONNTYPE = "ConnType";
     
     public static final String SUB_PATH = "Subscribe Path";
