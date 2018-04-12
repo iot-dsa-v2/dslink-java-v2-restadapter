@@ -33,6 +33,7 @@ public class Constants {
     
     public static final String LAST_RESPONSE_CODE = "Last Response Code";
     public static final String LAST_RESPONSE_DATA = "Last Response Data";
+    public static final String LAST_RESPONSE_TS = "Last Response Timestamp";
     public static final String LAST_RESPONSES_TABLE = "Last Responses";
     
     //FORMAT PLACEHOLDERS

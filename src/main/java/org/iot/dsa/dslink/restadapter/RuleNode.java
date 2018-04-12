@@ -10,6 +10,7 @@ import org.iot.dsa.node.DSMap.Entry;
 import org.iot.dsa.node.action.ActionInvocation;
 import org.iot.dsa.node.action.ActionResult;
 import org.iot.dsa.node.action.DSAction;
+import org.iot.dsa.time.DSDateTime;
 
 public class RuleNode extends AbstractRuleNode {
     
@@ -18,6 +19,7 @@ public class RuleNode extends AbstractRuleNode {
     
     private DSInfo lastRespCode = getInfo(Constants.LAST_RESPONSE_CODE);
     private DSInfo lastRespData = getInfo(Constants.LAST_RESPONSE_DATA);
+    private DSInfo lastRespTs = getInfo(Constants.LAST_RESPONSE_TS);
     
     public RuleNode() {
         
@@ -33,6 +35,7 @@ public class RuleNode extends AbstractRuleNode {
         declareDefault(Constants.ACT_REMOVE, makeRemoveAction());
         declareDefault(Constants.LAST_RESPONSE_CODE, DSInt.NULL).setReadOnly(true);
         declareDefault(Constants.LAST_RESPONSE_DATA, DSString.EMPTY).setReadOnly(true);
+        declareDefault(Constants.LAST_RESPONSE_TS, DSString.EMPTY).setReadOnly(true);
     }
     
     @Override
@@ -125,6 +128,7 @@ public class RuleNode extends AbstractRuleNode {
         
         put(lastRespCode, DSInt.valueOf(status));
         put(lastRespData, DSString.valueOf(data));
+        put(lastRespTs, DSString.valueOf(DSDateTime.valueOf(resp.getDate().getTime()).toString()));
     }
 
 }

@@ -12,6 +12,7 @@ import org.iot.dsa.node.action.ActionInvocation;
 import org.iot.dsa.node.action.ActionResult;
 import org.iot.dsa.node.action.DSAction;
 import org.iot.dsa.node.event.DSValueTopic;
+import org.iot.dsa.time.DSDateTime;
 
 public class RuleTableNode extends AbstractRuleNode {
     
@@ -42,7 +43,7 @@ public class RuleTableNode extends AbstractRuleNode {
                 this.table = (DSList) o;
             }
         } else {
-            put(Constants.RULE_TABLE, table.copy()).setHidden(true);
+            put(Constants.RULE_TABLE, table.copy());
         }
     }
     
@@ -108,7 +109,7 @@ public class RuleTableNode extends AbstractRuleNode {
         DSAction act = new DSAction() {
             @Override
             public ActionResult invoke(DSInfo info, ActionInvocation invocation) {
-                ((RuleNode) info.getParent()).edit(invocation.getParameters());
+                ((RuleTableNode) info.getParent()).edit(invocation.getParameters());
                 return null;
             }
         };        
@@ -132,6 +133,7 @@ public class RuleTableNode extends AbstractRuleNode {
         DSMap respMap = respTable.getMap(rowNum);
         respMap.put(Constants.LAST_RESPONSE_CODE, status);
         respMap.put(Constants.LAST_RESPONSE_DATA, data);
+        respMap.put(Constants.LAST_RESPONSE_TS, DSDateTime.valueOf(resp.getDate().getTime()).toString());
         fire(VALUE_TOPIC, DSValueTopic.Event.CHILD_CHANGED, lastResponses);
     }
 
