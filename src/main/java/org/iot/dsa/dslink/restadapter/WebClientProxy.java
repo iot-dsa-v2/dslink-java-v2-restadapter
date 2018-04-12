@@ -100,6 +100,7 @@ public class WebClientProxy {
     private WebClient prepareWebClient(String address, DSMap urlParameters) {
         WebClient client = configureAuthorization(address);
         client.accept(MediaType.APPLICATION_JSON);
+        client.type(MediaType.APPLICATION_JSON);
         for (int i = 0; i < urlParameters.size(); i++) {
             Entry entry = urlParameters.getEntry(i);
             Object value = Util.dsElementToObject(entry.getValue());
