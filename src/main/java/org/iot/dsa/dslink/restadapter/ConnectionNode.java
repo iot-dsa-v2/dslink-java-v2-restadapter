@@ -126,14 +126,15 @@ public class ConnectionNode extends DSNode {
                 return null;
             }
         };
-        String scheme = getAuthScheme();
+        AUTH_SCHEME scheme = AUTH_SCHEME.valueOf(getAuthScheme());
         if (!Util.AUTH_SCHEME.OAUTH2_CLIENT.equals(scheme)) {
             act.addDefaultParameter(Constants.USERNAME, DSString.valueOf(getUsername()), null);
             act.addDefaultParameter(Constants.PASSWORD, DSString.valueOf(getPassword()), null).setEditor("password");
         }
         if (Util.AUTH_SCHEME.OAUTH2_CLIENT.equals(scheme) || Util.AUTH_SCHEME.OAUTH2_USR_PASS.equals(scheme)) {
             act.addDefaultParameter(Constants.CLIENT_ID, DSString.valueOf(getClientId()), null);
-            act.addParameter(Constants.CLIENT_SECRET, DSString.valueOf(getClientSecret()), null).setEditor("password");
+            act.addDefaultParameter(Constants.CLIENT_SECRET, DSString.valueOf(getClientSecret()), null).setEditor("password");
+            act.addDefaultParameter(Constants.TOKEN_URL, DSString.valueOf(getTokenURL()), null);
         }
         return act;
     }
