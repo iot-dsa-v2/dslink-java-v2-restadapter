@@ -51,10 +51,10 @@ public class ConnectionNode extends DSNode {
                 clientProxy = WebClientProxy.buildBasicUserPassClient(getUsername(), getPassword());
                 break;
             case OAUTH2_CLIENT:
-                clientProxy = WebClientProxy.buildClientFlowOAuth2Client(getClientID(), getSecret(), getTokenURL());
+                clientProxy = WebClientProxy.buildClientFlowOAuth2Client(getClientId(), getClientSecret(), getTokenURL());
                 break;
             case OAUTH2_USR_PASS:
-                clientProxy = WebClientProxy.buildPasswordFlowOAuth2Client(getUsername(), getPassword(), getClientID(), getSecret(), getTokenURL());
+                clientProxy = WebClientProxy.buildPasswordFlowOAuth2Client(getUsername(), getPassword(), getClientId(), getClientSecret(), getTokenURL());
                 break;
             default:
                 DSException.throwRuntime(new RuntimeException("Unsupported AuthScheme: " + getAuthScheme()));
@@ -163,16 +163,8 @@ public class ConnectionNode extends DSNode {
         return parameters.getString(Constants.CLIENT_SECRET);
     }
 
-    private String getClientID() {
-        return parameters.getString("ClientID");
-    }
-
-    private String getSecret() {
-        return parameters.getString("ClientSecret");
-    }
-
     private String getTokenURL() {
-        return parameters.getString("TokenURL");
+        return parameters.getString(Constants.TOKEN_URL);
     }
 
     private String getAuthScheme() {
