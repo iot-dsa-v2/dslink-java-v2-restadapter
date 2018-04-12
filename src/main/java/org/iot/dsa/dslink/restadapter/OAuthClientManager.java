@@ -8,6 +8,7 @@ import org.apache.cxf.rs.security.oauth2.common.ClientAccessToken;
 import org.apache.cxf.rs.security.oauth2.grants.clientcred.ClientCredentialsGrant;
 import org.apache.cxf.rs.security.oauth2.grants.owner.ResourceOwnerGrant;
 import org.apache.cxf.rs.security.oauth2.provider.OAuthServiceException;
+import org.iot.dsa.logging.DSLogger;
 import org.iot.dsa.util.DSException;
 
 import java.util.concurrent.TimeUnit;
@@ -16,7 +17,7 @@ import java.util.concurrent.TimeUnit;
  * @author James (Juris) Puchin
  * Created on 4/10/2018
  */
-public class OAuthClientManager {
+public class OAuthClientManager extends DSLogger {
     private WebClient accessTokenService;
     private String userName;
     private String password;
@@ -69,6 +70,8 @@ public class OAuthClientManager {
         } catch (OAuthServiceException ex) {
             DSException.throwRuntime(ex);
         }
+
+        info("New token generated. URI: " + accessTokenService.getCurrentURI());
     }
 
     private void refreshToken() {
@@ -78,6 +81,7 @@ public class OAuthClientManager {
         } catch (OAuthServiceException ex) {
             getNewToken();
         }
+        info("Token refreshed. URI: " + accessTokenService.getCurrentURI());
     }
 
     /**
