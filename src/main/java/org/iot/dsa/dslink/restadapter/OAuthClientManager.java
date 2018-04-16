@@ -78,7 +78,9 @@ public class OAuthClientManager extends DSLogger {
         try {
             token = OAuthClientUtils.refreshAccessToken(accessTokenService, consumer, token);
             setExpirationTime();
-        } catch (OAuthServiceException ex) {
+        } catch (Exception ex) {
+            info("Token refresh failed. URI: " + accessTokenService.getCurrentURI());
+            info(ex.toString());
             getNewToken();
         }
         info("Token refreshed. URI: " + accessTokenService.getCurrentURI());
