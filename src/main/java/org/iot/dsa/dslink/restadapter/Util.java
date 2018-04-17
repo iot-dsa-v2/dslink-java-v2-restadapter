@@ -44,4 +44,28 @@ public class Util {
             }
         }
     }
+    
+    public static double getDouble(DSList row, int index, double def) {
+        try {
+            return row.getDouble(index);
+        } catch (Exception e) {
+            try {
+                return Double.parseDouble(row.getString(index));
+            } catch (Exception e1) {
+                return def;
+            }
+        }
+    }
+    
+    public static double getDouble(DSMap map, String key, double def) {
+        try {
+            return map.getDouble(key);
+        } catch (Exception e) {
+            try {
+                return Double.parseDouble(map.getString(key));
+            } catch (Exception e1) {
+                return def;
+            }
+        }
+    }
 }

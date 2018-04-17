@@ -1,6 +1,7 @@
 package org.iot.dsa.dslink.restadapter;
 
 import javax.ws.rs.core.Response;
+import org.iot.dsa.node.DSDouble;
 import org.iot.dsa.node.DSIObject;
 import org.iot.dsa.node.DSInfo;
 import org.iot.dsa.node.DSInt;
@@ -86,6 +87,8 @@ public class RuleNode extends AbstractRuleNode {
         act.addDefaultParameter(Constants.REST_METHOD, DSString.valueOf(getMethod()), null);
         act.addDefaultParameter(Constants.URL_PARAMETERS, getURLParameters().copy(), null);
         act.addDefaultParameter(Constants.REQUEST_BODY, DSString.valueOf(getBody()), null);
+        act.addDefaultParameter(Constants.MIN_REFRESH_RATE, DSDouble.valueOf(getMinRefreshRate()), null);
+        act.addDefaultParameter(Constants.MAX_REFRESH_RATE, DSDouble.valueOf(getMaxRefreshRate()), null);
         return act;
     }
 
@@ -136,7 +139,7 @@ public class RuleNode extends AbstractRuleNode {
         
         put(lastRespCode, DSInt.valueOf(status));
         put(lastRespData, DSString.valueOf(data));
-        put(lastRespTs, DSString.valueOf(DSDateTime.valueOf(resp.getDate().getTime()).toString()));
+        put(lastRespTs, DSString.valueOf(resp.getDate() != null ? DSDateTime.valueOf(resp.getDate().getTime()) : DSDateTime.currentTime()));
     }
 
 }

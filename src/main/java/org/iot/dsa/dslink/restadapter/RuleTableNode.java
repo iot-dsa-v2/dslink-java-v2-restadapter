@@ -68,8 +68,8 @@ public class RuleTableNode extends AbstractRuleNode {
                 method = row.getString(Constants.REST_METHOD);
                 urlParams = Util.dsElementToMap(row.get(Constants.URL_PARAMETERS));
                 body = row.getString(Constants.REQUEST_BODY);
-                minRefresh = row.get(Constants.MIN_REFRESH_RATE, 0.0);
-                maxRefresh = row.get(Constants.MAX_REFRESH_RATE, 0.0);
+                minRefresh = Util.getDouble(row, Constants.MIN_REFRESH_RATE, 0.0);
+                maxRefresh = Util.getDouble(row, Constants.MAX_REFRESH_RATE, 0.0);
                 SubscriptionRule rule = new SubscriptionRule(this, subPath, restUrl, method, urlParams, body, minRefresh, maxRefresh, i);
                 rules.add(rule);
             } else if (elem instanceof DSList) {
@@ -79,8 +79,8 @@ public class RuleTableNode extends AbstractRuleNode {
                 method = row.getString(3);
                 urlParams = Util.dsElementToMap(row.get(4));
                 body = row.getString(5);
-                minRefresh = row.get(6, 0.0);
-                maxRefresh = row.get(7, 0.0);
+                minRefresh = Util.getDouble(row, 6, 0.0);
+                maxRefresh = Util.getDouble(row, 7, 0.0);
                 SubscriptionRule rule = new SubscriptionRule(this, subPath, restUrl, method, urlParams, body, minRefresh, maxRefresh, i);
                 rules.add(rule);
             }
@@ -138,7 +138,7 @@ public class RuleTableNode extends AbstractRuleNode {
         DSMap respMap = respTable.getMap(rowNum);
         respMap.put(Constants.LAST_RESPONSE_CODE, status);
         respMap.put(Constants.LAST_RESPONSE_DATA, data);
-        respMap.put(Constants.LAST_RESPONSE_TS, DSDateTime.valueOf(resp.getDate().getTime()).toString());
+        respMap.put(Constants.LAST_RESPONSE_TS, (resp.getDate() != null ? DSDateTime.valueOf(resp.getDate().getTime()) : DSDateTime.currentTime()).toString());
         fire(VALUE_TOPIC, DSValueTopic.Event.CHILD_CHANGED, lastResponses);
     }
 
