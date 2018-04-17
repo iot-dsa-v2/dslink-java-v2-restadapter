@@ -59,7 +59,7 @@ public class ConnectionNode extends DSNode {
             default:
                 DSException.throwRuntime(new RuntimeException("Unsupported AuthScheme: " + getAuthScheme()));
         }
-        put(Constants.ACT_EDIT, makeEditAction());
+        put(Constants.ACT_EDIT, makeEditAction()).setTransient(true);
     }
 
     private DSAction makeAddRuleAction() {
@@ -84,7 +84,7 @@ public class ConnectionNode extends DSNode {
 
     private void addRule(DSMap parameters) {
         String name = parameters.getString(Constants.NAME);
-        put(name, new RuleNode(parameters)).setTransient(true);
+        put(name, new RuleNode(parameters));
     }
 
     private DSAction makeAddRuleTableAction() {
@@ -103,7 +103,7 @@ public class ConnectionNode extends DSNode {
     private void addRuleTable(DSMap parameters) {
         String name = parameters.getString(Constants.NAME);
         DSList table = parameters.getList(Constants.RULE_TABLE);
-        put(name, new RuleTableNode(table)).setTransient(true);
+        put(name, new RuleTableNode(table));
     }
 
     private DSAction makeRemoveAction() {

@@ -11,6 +11,7 @@ import org.iot.dsa.node.DSValueType;
 import org.iot.dsa.node.action.ActionInvocation;
 import org.iot.dsa.node.action.ActionResult;
 import org.iot.dsa.node.action.DSAction;
+import org.iot.dsa.util.DSException;
 /**
  * The root and only node of this link.
  *
@@ -20,6 +21,7 @@ public class MainNode extends DSMainNode {
 
 
     private static DSIRequester requester;
+    private static final Object requesterLock = new Object();
 
     public MainNode() {
     }
@@ -121,10 +123,22 @@ public class MainNode extends DSMainNode {
     }
 
     public static DSIRequester getRequester() {
-        return requester;
+        synchronized (requesterLock) {
+            while (requester == null) {
+                try {
+                    requesterLock.wait();
+                } catch (InterruptedException e) {
+                    DSException.throwRuntime(e);
+                }
+            }
+            return requester;
+        }
     }
 
     public static void setRequester(DSIRequester requester) {
-        MainNode.requester = requester;
+        synchronized (requesterLock) {
+            MainNode.requester = requester;
+            requesterLock.notifyAll();
+        }
     }
 }

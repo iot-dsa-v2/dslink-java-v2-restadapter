@@ -48,6 +48,15 @@ public class SubscriptionRule implements OutboundSubscribeHandler {
         this.rowNum = rowNum;
         
         learnPattern();
+        DSRuntime.run(new Runnable() {
+            @Override
+            public void run() {
+                init();
+            }
+        });
+    }
+    
+    private void init() {
         DSIRequester requester = MainNode.getRequester();
         int qos = 0;
         requester.subscribe(this.subPath, qos, this);

@@ -54,7 +54,7 @@ public class RuleNode extends AbstractRuleNode {
     @Override
     protected void onStable() {
         rule = new SubscriptionRule(this, getSubscribePath(), getRestUrl(), getMethod(), getURLParameters(), getBody(), getMinRefreshRate(), getMaxRefreshRate(), 0);
-        put(Constants.ACT_EDIT, makeEditAction());
+        put(Constants.ACT_EDIT, makeEditAction()).setTransient(true);
     }
     
     private DSAction makeRemoveAction() {
