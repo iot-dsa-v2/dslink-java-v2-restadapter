@@ -52,7 +52,7 @@ public class RuleNode extends AbstractRuleNode {
     
     @Override
     protected void onStable() {
-        rule = new SubscriptionRule(this, getSubscribePath(), getRestUrl(), getMethod(), getURLParameters(), getBody(), 0);
+        rule = new SubscriptionRule(this, getSubscribePath(), getRestUrl(), getMethod(), getURLParameters(), getBody(), getMinRefreshRate(), getMaxRefreshRate(), 0);
         put(Constants.ACT_EDIT, makeEditAction());
     }
     
@@ -119,6 +119,14 @@ public class RuleNode extends AbstractRuleNode {
     
     public String getBody() {
         return parameters.getString(Constants.REQUEST_BODY);
+    }
+    
+    public double getMinRefreshRate() {
+        return parameters.get(Constants.MIN_REFRESH_RATE, 0.0);
+    }
+    
+    public double getMaxRefreshRate() {
+        return parameters.get(Constants.MAX_REFRESH_RATE, 0.0);
     }
 
     @Override

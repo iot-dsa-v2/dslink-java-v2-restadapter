@@ -60,6 +60,7 @@ public class RuleTableNode extends AbstractRuleNode {
             DSElement elem = table.get(i);
             String subPath, restUrl, method, body;
             DSMap urlParams;
+            double minRefresh, maxRefresh;
             if (elem instanceof DSMap) {
                 DSMap row = (DSMap) elem;
                 subPath = row.getString(Constants.SUB_PATH);
@@ -67,7 +68,9 @@ public class RuleTableNode extends AbstractRuleNode {
                 method = row.getString(Constants.REST_METHOD);
                 urlParams = Util.dsElementToMap(row.get(Constants.URL_PARAMETERS));
                 body = row.getString(Constants.REQUEST_BODY);
-                SubscriptionRule rule = new SubscriptionRule(this, subPath, restUrl, method, urlParams, body, i);
+                minRefresh = row.get(Constants.MIN_REFRESH_RATE, 0.0);
+                maxRefresh = row.get(Constants.MAX_REFRESH_RATE, 0.0);
+                SubscriptionRule rule = new SubscriptionRule(this, subPath, restUrl, method, urlParams, body, minRefresh, maxRefresh, i);
                 rules.add(rule);
             } else if (elem instanceof DSList) {
                 DSList row = (DSList) elem;
@@ -76,7 +79,9 @@ public class RuleTableNode extends AbstractRuleNode {
                 method = row.getString(3);
                 urlParams = Util.dsElementToMap(row.get(4));
                 body = row.getString(5);
-                SubscriptionRule rule = new SubscriptionRule(this, subPath, restUrl, method, urlParams, body, i);
+                minRefresh = row.get(6, 0.0);
+                maxRefresh = row.get(7, 0.0);
+                SubscriptionRule rule = new SubscriptionRule(this, subPath, restUrl, method, urlParams, body, minRefresh, maxRefresh, i);
                 rules.add(rule);
             }
         }

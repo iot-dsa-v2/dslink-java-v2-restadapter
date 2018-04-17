@@ -18,6 +18,8 @@ public class Constants {
     public static final String URL_PARAMETERS = "URL Parameters";
     public static final String REQUEST_BODY = "Body";
     public static final String RULE_TABLE = "Table";
+    public static final String MIN_REFRESH_RATE = "Minimum Refresh Rate";
+    public static final String MAX_REFRESH_RATE = "Maximum Refresh Rate";
     
     //Actions
     public static final String ACT_ADD_BASIC_CONN = "Basic Connection";

@@ -3,6 +3,8 @@ package org.iot.dsa.dslink.restadapter;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.Response;
+import org.iot.dsa.DSRuntime;
+import org.iot.dsa.DSRuntime.Timer;
 import org.iot.dsa.dslink.DSIRequester;
 import org.iot.dsa.dslink.requester.ErrorType;
 import org.iot.dsa.dslink.requester.OutboundStream;
@@ -18,6 +20,8 @@ public class SubscriptionRule implements OutboundSubscribeHandler {
     
     private AbstractRuleNode node;
     private OutboundStream stream;
+    private long lastUpdateTime = -1;
+    private Timer future = null;
     
     private boolean valuesInBody = false;
     private List<String> urlParamsWithValues = new ArrayList<String>();
@@ -27,16 +31,20 @@ public class SubscriptionRule implements OutboundSubscribeHandler {
     private String method;
     private DSMap urlParameters;
     private String body;
+    private long minRefreshRate;
+    private long maxRefreshRate;
     
     private int rowNum;
     
-    public SubscriptionRule(AbstractRuleNode node, String subPath, String restUrl, String method, DSMap urlParameters, String body, int rowNum) {
+    public SubscriptionRule(AbstractRuleNode node, String subPath, String restUrl, String method, DSMap urlParameters, String body, double minRefreshRate, double maxRefreshRate, int rowNum) {
         this.node = node;
         this.subPath = subPath;
         this.restUrl = restUrl;
         this.method = method;
         this.urlParameters = urlParameters;
         this.body = body;
+        this.minRefreshRate = (long) (minRefreshRate * 1000);
+        this.maxRefreshRate = (long) (maxRefreshRate * 1000);
         this.rowNum = rowNum;
         
         learnPattern();
@@ -80,6 +88,16 @@ public class SubscriptionRule implements OutboundSubscribeHandler {
 
     @Override
     public void onUpdate(DSDateTime dateTime, DSElement value, DSStatus status) {
+        if (lastUpdateTime < 0 || System.currentTimeMillis() - lastUpdateTime >= minRefreshRate) {
+            if (future != null) {
+                future.cancel();
+            }
+            sendUpdate(dateTime, value, status);
+        }
+    }
+    
+    public void sendUpdate(final DSDateTime dateTime, final DSElement value, final DSStatus status) {
+        
         DSMap urlParams = urlParameters.copy();
         String body = this.body;
         for (String key: urlParamsWithValues) {
@@ -102,6 +120,16 @@ public class SubscriptionRule implements OutboundSubscribeHandler {
         
         Response resp = getWebClientProxy().invoke(method, restUrl, urlParams, body);
         node.responseRecieved(resp, rowNum);
+        
+        lastUpdateTime = System.currentTimeMillis();
+        if (maxRefreshRate > 0) {
+            future = DSRuntime.runDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    sendUpdate(dateTime, value, status);
+                }
+            }, maxRefreshRate);
+        }
     }
     
     public void close() {

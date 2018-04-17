@@ -76,6 +76,8 @@ public class ConnectionNode extends DSNode {
         act.addDefaultParameter(Constants.REST_METHOD, DSString.valueOf("POST"), null);
         act.addDefaultParameter(Constants.URL_PARAMETERS, new DSMap(), null);
         act.addParameter(Constants.REQUEST_BODY, DSValueType.STRING, null);
+        act.addParameter(Constants.MIN_REFRESH_RATE, DSValueType.NUMBER, "Optional, ensures at least this many seconds between updates");
+        act.addParameter(Constants.MAX_REFRESH_RATE, DSValueType.NUMBER, "Optional, ensures an update gets sent every this many seconds");
         return act;
     }
 
