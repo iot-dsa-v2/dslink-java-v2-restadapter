@@ -49,7 +49,11 @@ public class OAuthClientManager extends DSLogger {
             if (token == null) {
                 getNewToken();
             } else if (expireAt > 0 && System.currentTimeMillis() >= expireAt) {         //Refresh if expired
-                refreshToken();
+                if (token.getRefreshToken() != null) {
+                    refreshToken();
+                } else {
+                    getNewToken();
+                }
             }
         }
         return token;
