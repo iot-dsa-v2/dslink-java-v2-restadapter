@@ -119,13 +119,9 @@ public class WebClientProxy {
                 client = WebClient.create(address, username, password, null);
                 break;
             case OAUTH2_CLIENT:
-                client = WebClient.create(address);
-                ClientAccessToken token = authManager.getAccessToken();
-                client.header(HttpHeaders.AUTHORIZATION, OAuthClientUtils.createAuthorizationHeader(token));
-                break;
             case OAUTH2_USR_PASS:
-                //TODO: support USER/PASS
-                DSException.throwRuntime(new RuntimeException("Unsupported authorization type!"));
+                client = WebClient.create(address);
+                client.header(HttpHeaders.AUTHORIZATION, authManager.createAuthorizationHeader());
                 break;
         }
         return client;
