@@ -124,6 +124,7 @@ public class WebClientProxy {
                 client.header(HttpHeaders.AUTHORIZATION, OAuthClientUtils.createAuthorizationHeader(token));
                 break;
             case OAUTH2_USR_PASS:
+                //TODO: support USER/PASS
                 DSException.throwRuntime(new RuntimeException("Unsupported authorization type!"));
                 break;
         }
