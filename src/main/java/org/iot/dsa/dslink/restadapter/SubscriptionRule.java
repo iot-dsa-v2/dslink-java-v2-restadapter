@@ -9,6 +9,7 @@ import org.iot.dsa.dslink.DSIRequester;
 import org.iot.dsa.dslink.requester.ErrorType;
 import org.iot.dsa.dslink.requester.OutboundStream;
 import org.iot.dsa.dslink.requester.OutboundSubscribeHandler;
+import org.iot.dsa.logging.DSLogger;
 import org.iot.dsa.node.DSElement;
 import org.iot.dsa.node.DSMap;
 import org.iot.dsa.node.DSMap.Entry;
@@ -16,7 +17,7 @@ import org.iot.dsa.node.DSStatus;
 import org.iot.dsa.time.DSDateTime;
 import org.iot.dsa.util.DSException;
 
-public class SubscriptionRule implements OutboundSubscribeHandler {
+public class SubscriptionRule extends DSLogger implements OutboundSubscribeHandler {
     
     private AbstractRuleNode node;
     private OutboundStream stream;
@@ -83,21 +84,25 @@ public class SubscriptionRule implements OutboundSubscribeHandler {
 
     @Override
     public void onClose() {
+       info("Rule with sub path " + subPath + ": onClose called");
        close();
     }
 
     @Override
     public void onError(ErrorType type, String msg) {
+        info("Rule with sub path " + subPath + ": onError called with msg " + msg);
         DSException.throwRuntime(new RuntimeException(msg));
     }
 
     @Override
     public void onInit(String path, int qos, OutboundStream stream) {
+        info("Rule with sub path " + subPath + ": onInit called");
         this.stream = stream;
     }
 
     @Override
     public void onUpdate(DSDateTime dateTime, DSElement value, DSStatus status) {
+        info("Rule with sub path " + subPath + ": onUpdate called with value " + (value!=null ? value : "Null"));
         storedUpdate = new SubUpdate(dateTime, value, status);
         if (lastUpdateTime < 0 || System.currentTimeMillis() - lastUpdateTime >= minRefreshRate) {
             if (future != null) {
@@ -135,6 +140,8 @@ public class SubscriptionRule implements OutboundSubscribeHandler {
             body = body.replaceAll(Constants.PLACEHOLDER_STATUS, status.toString());
         }
         
+        info("Rule with sub path " + subPath + ": sending Update with value " + (value!=null ? value : "Null"));
+        
         Response resp = getWebClientProxy().invoke(method, restUrl, urlParams, body);
         node.responseRecieved(resp, rowNum);
         
@@ -151,6 +158,7 @@ public class SubscriptionRule implements OutboundSubscribeHandler {
     
     public void close() {
         if (stream != null && stream.isStreamOpen()) {
+            info("Rule with sub path " + subPath + ": closing Stream");
             stream.closeStream();
         }
     }
