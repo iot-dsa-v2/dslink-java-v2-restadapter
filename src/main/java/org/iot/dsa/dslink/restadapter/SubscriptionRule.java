@@ -22,6 +22,7 @@ public class SubscriptionRule implements OutboundSubscribeHandler {
     private OutboundStream stream;
     private long lastUpdateTime = -1;
     private Timer future = null;
+    private SubUpdate storedUpdate;
     
     private boolean valuesInBody = false;
     private List<String> urlParamsWithValues = new ArrayList<String>();
@@ -97,6 +98,7 @@ public class SubscriptionRule implements OutboundSubscribeHandler {
 
     @Override
     public void onUpdate(DSDateTime dateTime, DSElement value, DSStatus status) {
+        storedUpdate = new SubUpdate(dateTime, value, status);
         if (lastUpdateTime < 0 || System.currentTimeMillis() - lastUpdateTime >= minRefreshRate) {
             if (future != null) {
                 future.cancel();
@@ -105,7 +107,13 @@ public class SubscriptionRule implements OutboundSubscribeHandler {
         }
     }
     
-    public void sendUpdate(final DSDateTime dateTime, final DSElement value, final DSStatus status) {
+    private void sendStoredUpdate() {
+        if (storedUpdate != null) {
+            sendUpdate(storedUpdate.dateTime, storedUpdate.value, storedUpdate.status);
+        }
+    }
+    
+    private void sendUpdate(final DSDateTime dateTime, final DSElement value, final DSStatus status) {
         
         DSMap urlParams = urlParameters.copy();
         String body = this.body;
@@ -135,7 +143,7 @@ public class SubscriptionRule implements OutboundSubscribeHandler {
             future = DSRuntime.runDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    sendUpdate(dateTime, value, status);
+                    sendStoredUpdate();
                 }
             }, maxRefreshRate);
         }
@@ -150,6 +158,18 @@ public class SubscriptionRule implements OutboundSubscribeHandler {
 
     public WebClientProxy getWebClientProxy() {
         return node.getWebClientProxy();
+    }
+    
+    private static class SubUpdate {
+        final DSDateTime dateTime;
+        final DSElement value;
+        final DSStatus status;
+        
+        SubUpdate(DSDateTime dateTime, DSElement value, DSStatus status) {
+            this.dateTime = dateTime;
+            this.value = value;
+            this.status = status;
+        }
     }
 
 }
