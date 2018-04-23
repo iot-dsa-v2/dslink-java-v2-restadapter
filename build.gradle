@@ -21,8 +21,8 @@ repositories {
 }
 
 dependencies {
-    compile 'org.iot.dsa:dslink-core:0.22.1'
-    compile 'org.iot.dsa:dslink-websocket-standalone:0.22.1'
+    compile 'org.iot.dsa:dslink-core:0.22.2'
+    compile 'org.iot.dsa:dslink-websocket-standalone:0.22.2'
     compile 'org.glassfish.tyrus.bundles:tyrus-standalone-client:1.13'
     compile 'commons-logging:commons-logging:+'
     compile 'org.apache.commons:commons-lang3:3.6'
