@@ -2,8 +2,8 @@ package org.iot.dsa.dslink.restadapter;
 
 import org.iot.dsa.dslink.DSIRequester;
 import org.iot.dsa.dslink.DSLinkConnection;
-import org.iot.dsa.dslink.DSMainNode;
 import org.iot.dsa.dslink.DSLinkConnection.Listener;
+import org.iot.dsa.dslink.DSMainNode;
 import org.iot.dsa.node.DSInfo;
 import org.iot.dsa.node.DSMap;
 import org.iot.dsa.node.DSString;
@@ -12,6 +12,7 @@ import org.iot.dsa.node.action.ActionInvocation;
 import org.iot.dsa.node.action.ActionResult;
 import org.iot.dsa.node.action.DSAction;
 import org.iot.dsa.util.DSException;
+
 /**
  * The root and only node of this link.
  *
@@ -26,7 +27,7 @@ public class MainNode extends DSMainNode {
     public MainNode() {
     }
 
-    
+
     /**
      * Defines the permanent children of this node type, their existence is guaranteed in all
      * instances.  This is only ever called once per, type per process.
@@ -62,9 +63,13 @@ public class MainNode extends DSMainNode {
             }
         };
         act.addParameter(Constants.NAME, DSValueType.STRING, null);
-        act.addDefaultParameter(Constants.CLIENT_ID, DSString.valueOf(PrivateData.BRICK_CLI_CLIENT_ID), null);
-        act.addDefaultParameter(Constants.CLIENT_SECRET, DSString.valueOf(PrivateData.BRICK_CLI_SECRET), null).setEditor("password");
-        act.addDefaultParameter(Constants.TOKEN_URL, DSString.valueOf(PrivateData.URL_TOKEN_PATH), null);
+        act.addDefaultParameter(Constants.CLIENT_ID,
+                                DSString.valueOf(PrivateData.BRICK_CLI_CLIENT_ID), null);
+        act.addDefaultParameter(Constants.CLIENT_SECRET,
+                                DSString.valueOf(PrivateData.BRICK_CLI_SECRET), null)
+           .setEditor("password");
+        act.addDefaultParameter(Constants.TOKEN_URL, DSString.valueOf(PrivateData.URL_TOKEN_PATH),
+                                null);
         return act;
     }
 
@@ -72,7 +77,8 @@ public class MainNode extends DSMainNode {
         DSAction act = new DSAction() {
             @Override
             public ActionResult invoke(DSInfo info, ActionInvocation invocation) {
-                ((MainNode) info.getParent()).addOAuthPasswordConnection(invocation.getParameters());
+                ((MainNode) info.getParent())
+                        .addOAuthPasswordConnection(invocation.getParameters());
                 return null;
             }
         };
@@ -107,7 +113,7 @@ public class MainNode extends DSMainNode {
         String name = parameters.getString(Constants.NAME);
         put(name, new ConnectionNode(parameters));
     }
-    
+
     @Override
     protected void onStarted() {
         getLink().getConnection().addListener(new Listener() {
