@@ -15,8 +15,6 @@ import org.iot.dsa.util.DSException;
 
 /**
  * The root and only node of this link.
- *
- * @author Aaron Hansen
  */
 public class MainNode extends DSMainNode {
 
@@ -63,13 +61,10 @@ public class MainNode extends DSMainNode {
             }
         };
         act.addParameter(Constants.NAME, DSValueType.STRING, null);
-        act.addDefaultParameter(Constants.CLIENT_ID,
-                                DSString.valueOf(PrivateData.BRICK_CLI_CLIENT_ID), null);
-        act.addDefaultParameter(Constants.CLIENT_SECRET,
-                                DSString.valueOf(PrivateData.BRICK_CLI_SECRET), null)
+        act.addDefaultParameter(Constants.CLIENT_ID, DSString.EMPTY, null);
+        act.addDefaultParameter(Constants.CLIENT_SECRET, DSString.EMPTY, null)
            .setEditor("password");
-        act.addDefaultParameter(Constants.TOKEN_URL, DSString.valueOf(PrivateData.URL_TOKEN_PATH),
-                                null);
+        act.addParameter(Constants.TOKEN_URL, DSString.EMPTY, null);
         return act;
     }
 
