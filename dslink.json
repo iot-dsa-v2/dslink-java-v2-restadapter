@@ -16,11 +16,6 @@
       "desc": "all, trace, debug, fine, warn, info, error, admin, fatal, none",
       "type": "enum",
       "value": "info"
-    },
-    "token": {
-      "desc": "Authentication token for the broker.",
-      "type": "string",
-      "value": null
     }
   }
 }
