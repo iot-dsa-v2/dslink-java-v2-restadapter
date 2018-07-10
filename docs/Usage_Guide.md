@@ -66,3 +66,4 @@ e.g:
 ```
 
 ### Rule Table Example
+![](https://github.com/iot-dsa-v2/dslink-java-v2-restadapter/blob/develop/docs/rest_adapter_rule_table.png)
