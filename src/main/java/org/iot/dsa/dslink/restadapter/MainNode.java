@@ -36,6 +36,7 @@ public class MainNode extends DSMainNode {
         declareDefault(Constants.ACT_ADD_BASIC_CONN, makeAddBasicConnectionAction());
         declareDefault(Constants.ACT_ADD_OAUTH_CLIENT_CONN, makeAddOauthClientConnectionAction());
         declareDefault(Constants.ACT_ADD_OAUTH_PASSWORD_CONN, makeAddOauthPassConnectionAction());
+        declareDefault("Docs", DSString.valueOf("https://github.com/iot-dsa-v2/dslink-java-v2-restadapter/blob/develop/docs/Usage_Guide.md")).setTransient(true).setReadOnly(true);
     }
 
     private DSAction makeAddBasicConnectionAction() {
