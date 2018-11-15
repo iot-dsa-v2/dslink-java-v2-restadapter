@@ -63,10 +63,10 @@ public class ConnectionNode extends DSNode {
     }
 
     private DSAction makeAddRuleAction() {
-        DSAction act = new DSAction() {
+        DSAction act = new DSAction.Parameterless() {
             @Override
-            public ActionResult invoke(DSInfo info, ActionInvocation invocation) {
-                ((ConnectionNode) info.getParent()).addRule(invocation.getParameters());
+            public ActionResult invoke(DSInfo target, ActionInvocation invocation) {
+                ((ConnectionNode) target.get()).addRule(invocation.getParameters());
                 return null;
             }
         };
@@ -88,10 +88,10 @@ public class ConnectionNode extends DSNode {
     }
 
     private DSAction makeAddRuleTableAction() {
-        DSAction act = new DSAction() {
+        DSAction act = new DSAction.Parameterless() {
             @Override
-            public ActionResult invoke(DSInfo info, ActionInvocation invocation) {
-                ((ConnectionNode) info.getParent()).addRuleTable(invocation.getParameters());
+            public ActionResult invoke(DSInfo target, ActionInvocation invocation) {
+                ((ConnectionNode) target.get()).addRuleTable(invocation.getParameters());
                 return null;
             }
         };
@@ -107,10 +107,10 @@ public class ConnectionNode extends DSNode {
     }
 
     private DSAction makeRemoveAction() {
-        return new DSAction() {
+        return new DSAction.Parameterless() {
             @Override
-            public ActionResult invoke(DSInfo info, ActionInvocation invocation) {
-                ((ConnectionNode) info.getParent()).delete();
+            public ActionResult invoke(DSInfo target, ActionInvocation invocation) {
+                ((ConnectionNode) target.get()).delete();
                 return null;
             }
         };
@@ -121,10 +121,10 @@ public class ConnectionNode extends DSNode {
     }
 
     private DSIObject makeEditAction() {
-        DSAction act = new DSAction() {
+        DSAction act = new DSAction.Parameterless() {
             @Override
-            public ActionResult invoke(DSInfo info, ActionInvocation invocation) {
-                ((ConnectionNode) info.getParent()).edit(invocation.getParameters());
+            public ActionResult invoke(DSInfo target, ActionInvocation invocation) {
+                ((ConnectionNode) target.get()).edit(invocation.getParameters());
                 return null;
             }
         };
@@ -142,8 +142,7 @@ public class ConnectionNode extends DSNode {
     }
 
     private void edit(DSMap parameters) {
-        for (int i = 0; i < parameters.size(); i++) {
-            Entry entry = parameters.getEntry(i);
+        for (Entry entry : parameters) {
             this.parameters.put(entry.getKey(), entry.getValue().copy());
         }
         put(Constants.PARAMS, parameters.copy());

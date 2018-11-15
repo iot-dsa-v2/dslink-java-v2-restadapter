@@ -58,10 +58,10 @@ public class RuleNode extends AbstractRuleNode {
     }
     
     private DSAction makeRemoveAction() {
-        return new DSAction() {
+        return new DSAction.Parameterless() {
             @Override
-            public ActionResult invoke(DSInfo info, ActionInvocation invocation) {
-                ((RuleNode) info.getParent()).delete();
+            public ActionResult invoke(DSInfo target, ActionInvocation invocation) {
+                ((RuleNode) target.get()).delete();
                 return null;
             }
         };
@@ -75,10 +75,10 @@ public class RuleNode extends AbstractRuleNode {
     }
     
     private DSIObject makeEditAction() {
-        DSAction act = new DSAction() {
+        DSAction act = new DSAction.Parameterless() {
             @Override
-            public ActionResult invoke(DSInfo info, ActionInvocation invocation) {
-                ((RuleNode) info.getParent()).edit(invocation.getParameters());
+            public ActionResult invoke(DSInfo target, ActionInvocation invocation) {
+                ((RuleNode) target.get()).edit(invocation.getParameters());
                 return null;
             }
         };
@@ -93,8 +93,7 @@ public class RuleNode extends AbstractRuleNode {
     }
 
     protected void edit(DSMap parameters) {
-        for (int i = 0; i < parameters.size(); i++) {
-            Entry entry = parameters.getEntry(i);
+        for (Entry entry : parameters) {
             this.parameters.put(entry.getKey(), entry.getValue().copy());
         }
         put(Constants.PARAMS, parameters.copy());
