@@ -1,19 +1,15 @@
 {
   "name": "dslink-java-v2-restadapter",
-  "version": "1.0.1",
-  "dsa-version": "1.0",
+  "version": "1.0.2",
   "description": "Java DSA to REST adpater DSLink",
   "main": "bin/dslink-java-v2-restadapter",
   "configs": {
-    "broker": {
-      "type": "url"
-    },
-    "handler_class": {
+    "main-node": {
       "type": "string",
       "value": "org.iot.dsa.dslink.restadapter.MainNode"
     },
     "log": {
-      "desc": "all, trace, debug, fine, warn, info, error, admin, fatal, none",
+      "desc": "all, trace, debug, info, warn, error, none",
       "type": "enum",
       "value": "info"
     }

@@ -65,8 +65,7 @@ public class SubscriptionRule extends DSLogger implements OutboundSubscribeHandl
     }
     
     private void learnPattern() {
-        for (int i = 0; i < urlParameters.size(); i++) {
-            Entry entry = urlParameters.getEntry(i);
+        for (Entry entry : urlParameters) {
             DSElement val = entry.getValue();
             if (val.isString()) {
                 String str = val.toString();
