@@ -101,8 +101,7 @@ public class WebClientProxy {
         WebClient client = configureAuthorization(address);
         client.accept(MediaType.APPLICATION_JSON);
         client.type(MediaType.APPLICATION_JSON);
-        for (int i = 0; i < urlParameters.size(); i++) {
-            Entry entry = urlParameters.getEntry(i);
+        for (Entry entry : urlParameters) {
             Object value = Util.dsElementToObject(entry.getValue());
             client.query(entry.getKey(), value);
         }
