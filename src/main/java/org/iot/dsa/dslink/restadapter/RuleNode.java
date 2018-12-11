@@ -41,6 +41,7 @@ public class RuleNode extends AbstractRuleNode {
     
     @Override
     protected void onStarted() {
+        super.onStarted();
         if (this.parameters == null) {
             DSIObject o = get(Constants.PARAMS);
             if (o instanceof DSMap) {

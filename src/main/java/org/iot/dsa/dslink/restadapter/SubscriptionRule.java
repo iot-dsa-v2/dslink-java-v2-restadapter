@@ -1,7 +1,9 @@
 package org.iot.dsa.dslink.restadapter;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import javax.ws.rs.core.Response;
 import org.iot.dsa.DSRuntime;
 import org.iot.dsa.DSRuntime.Timer;
@@ -24,8 +26,10 @@ public class SubscriptionRule extends DSLogger implements OutboundSubscribeHandl
     private long lastUpdateTime = -1;
     private Timer future = null;
     private SubUpdate storedUpdate;
+    private boolean unsentInBuffer = false;
     
     private boolean valuesInBody = false;
+    private boolean batchable = false;
     private List<String> urlParamsWithValues = new ArrayList<String>();
     
     private String subPath;
@@ -74,9 +78,24 @@ public class SubscriptionRule extends DSLogger implements OutboundSubscribeHandl
                 }
             }
         }
+        int indexOfValue = body.indexOf(Constants.PLACEHOLDER_VALUE);
+        int indexOfTs = body.indexOf(Constants.PLACEHOLDER_TS);
+        int indexOfStatus = body.indexOf(Constants.PLACEHOLDER_STATUS);
         if (body != null) {
-            if (body.indexOf(Constants.PLACEHOLDER_VALUE) != -1 || body.indexOf(Constants.PLACEHOLDER_TS) != -1 || body.indexOf(Constants.PLACEHOLDER_STATUS) != -1) {
+            if (indexOfValue != -1 || indexOfTs != -1 || indexOfStatus != -1) {
                 valuesInBody = true;
+                int indexOfStart = body.indexOf(Constants.PLACEHOLDER_BLOCK_START);
+                int indexOfEnd = body.indexOf(Constants.PLACEHOLDER_BLOCK_END);
+                if (urlParamsWithValues.isEmpty() 
+                        && indexOfStart != -1 && indexOfEnd != -1 
+                        && (indexOfValue == -1 || indexOfStart < indexOfValue)
+                        && (indexOfTs == -1 || indexOfStart < indexOfTs)
+                        && (indexOfStatus == -1 || indexOfStart < indexOfStatus)
+                        && indexOfValue < indexOfEnd 
+                        && indexOfTs < indexOfEnd 
+                        && indexOfStatus < indexOfEnd) {
+                    batchable = true;
+                }
             }
         }
     }
@@ -107,17 +126,44 @@ public class SubscriptionRule extends DSLogger implements OutboundSubscribeHandl
             if (future != null) {
                 future.cancel();
             }
-            sendUpdate(dateTime, value, status);
+            trySendUpdate(dateTime, value, status);
         }
     }
     
     private void sendStoredUpdate() {
         if (storedUpdate != null) {
-            sendUpdate(storedUpdate.dateTime, storedUpdate.value, storedUpdate.status);
+            trySendUpdate(storedUpdate.dateTime, storedUpdate.value, storedUpdate.status);
         }
     }
     
-    private void sendUpdate(final DSDateTime dateTime, final DSElement value, final DSStatus status) {
+    private String getSubId() {
+        return node.getId() + "_" + subPath;
+    }
+    
+    private void trySendUpdate(final DSDateTime dateTime, final DSElement value, final DSStatus status) {
+        if (sendUpdate(dateTime, value, status)) {
+            if (unsentInBuffer) {
+                unsentInBuffer = !Util.processBuffer(getSubId(), this);
+            }
+        } else {
+            if (node.isBufferEnabled()) {
+                Util.storeInBuffer(getSubId(), new SubUpdate(dateTime, value, status));
+                unsentInBuffer = true;
+            }
+        }
+        
+        lastUpdateTime = System.currentTimeMillis();
+        if (maxRefreshRate > 0) {
+            future = DSRuntime.runDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    sendStoredUpdate();
+                }
+            }, maxRefreshRate);
+        }
+    }
+    
+    private boolean sendUpdate(final DSDateTime dateTime, final DSElement value, final DSStatus status) {
         
         DSMap urlParams = urlParameters.copy();
         String body = this.body;
@@ -143,16 +189,52 @@ public class SubscriptionRule extends DSLogger implements OutboundSubscribeHandl
         
         Response resp = getWebClientProxy().invoke(method, restUrl, urlParams, body);
         node.responseRecieved(resp, rowNum);
-        
-        lastUpdateTime = System.currentTimeMillis();
-        if (maxRefreshRate > 0) {
-            future = DSRuntime.runDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    sendStoredUpdate();
+        return resp.getStatus() == 200;
+    }
+    
+    public Queue<SubUpdate> sendBatchUpdate(Queue<SubUpdate> updates) {
+        if (!batchable) {
+            Queue<SubUpdate> failed = new LinkedList<SubUpdate>();
+            while (!updates.isEmpty()) {
+                SubUpdate update = updates.poll();
+                if (!sendUpdate(update.dateTime, update.value, update.status)) {
+                    failed.add(update);
                 }
-            }, maxRefreshRate);
+            }
+            return failed;
         }
+        DSMap urlParams = urlParameters.copy();
+        StringBuilder sb = new StringBuilder();
+        int indexOfStart = body.indexOf(Constants.PLACEHOLDER_BLOCK_START);
+        int indexOfEnd = body.indexOf(Constants.PLACEHOLDER_BLOCK_END);
+        String prefix = body.substring(0, indexOfStart);
+        String block = body.substring(indexOfStart + Constants.PLACEHOLDER_BLOCK_START.length(), indexOfEnd);
+        String suffix = body.substring(indexOfEnd + Constants.PLACEHOLDER_BLOCK_END.length());
+        sb.append(prefix);
+        Queue<SubUpdate> updatesCopy = new LinkedList<SubUpdate>();
+        while (!updates.isEmpty()) {
+            SubUpdate update = updates.poll();
+            updatesCopy.add(update);
+            String temp = block.replaceAll(Constants.PLACEHOLDER_VALUE, update.value.toString())
+                    .replaceAll(Constants.PLACEHOLDER_TS, update.dateTime.toString())
+                    .replaceAll(Constants.PLACEHOLDER_STATUS, update.status.toString());
+            sb.append(temp);
+            if (!updates.isEmpty()) {
+                sb.append(',');
+            }
+        }
+        sb.append(suffix);
+        String body = sb.toString();
+        info("Rule with sub path " + subPath + ": sending batch update");
+        
+        Response resp = getWebClientProxy().invoke(method, restUrl, urlParams, body);
+        node.responseRecieved(resp, rowNum);
+        if (resp.getStatus() == 200) {
+            return null;
+        } else {
+            return updatesCopy;
+        }
+        
     }
     
     public void close() {
@@ -165,18 +247,6 @@ public class SubscriptionRule extends DSLogger implements OutboundSubscribeHandl
 
     public WebClientProxy getWebClientProxy() {
         return node.getWebClientProxy();
-    }
-    
-    private static class SubUpdate {
-        final DSDateTime dateTime;
-        final DSElement value;
-        final DSStatus status;
-        
-        SubUpdate(DSDateTime dateTime, DSElement value, DSStatus status) {
-            this.dateTime = dateTime;
-            this.value = value;
-            this.status = status;
-        }
     }
 
 }

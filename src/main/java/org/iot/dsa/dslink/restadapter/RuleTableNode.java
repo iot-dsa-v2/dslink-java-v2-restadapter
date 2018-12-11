@@ -63,6 +63,7 @@ public class RuleTableNode extends AbstractRuleNode {
 
     @Override
     protected void onStarted() {
+        super.onStarted();
         if (this.table == null) {
             DSIObject o = get(Constants.RULE_TABLE);
             if (o instanceof DSList) {
