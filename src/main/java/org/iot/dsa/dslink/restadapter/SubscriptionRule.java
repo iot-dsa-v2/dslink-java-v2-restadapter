@@ -121,18 +121,18 @@ public class SubscriptionRule extends DSLogger implements OutboundSubscribeHandl
     @Override
     public void onUpdate(DSDateTime dateTime, DSElement value, DSStatus status) {
         info("Rule with sub path " + subPath + ": onUpdate called with value " + (value!=null ? value : "Null"));
-        storedUpdate = new SubUpdate(dateTime, value, status);
+        storedUpdate = new SubUpdate(dateTime.toString(), value.toString(), status.toString(), dateTime.timeInMillis());
         if (lastUpdateTime < 0 || System.currentTimeMillis() - lastUpdateTime >= minRefreshRate) {
             if (future != null) {
                 future.cancel();
             }
-            trySendUpdate(dateTime, value, status);
+            trySendUpdate(new SubUpdate(dateTime.toString(), value.toString(), status.toString(), dateTime.timeInMillis()));
         }
     }
     
     private void sendStoredUpdate() {
         if (storedUpdate != null) {
-            trySendUpdate(storedUpdate.dateTime, storedUpdate.value, storedUpdate.status);
+            trySendUpdate(storedUpdate);
         }
     }
     
@@ -140,14 +140,14 @@ public class SubscriptionRule extends DSLogger implements OutboundSubscribeHandl
         return node.getId() + "_" + subPath;
     }
     
-    private void trySendUpdate(final DSDateTime dateTime, final DSElement value, final DSStatus status) {
-        if (sendUpdate(dateTime, value, status)) {
+    private void trySendUpdate(final SubUpdate update) {
+        if (sendUpdate(update)) {
             if (unsentInBuffer) {
                 unsentInBuffer = !Util.processBuffer(getSubId(), this);
             }
         } else {
             if (node.isBufferEnabled()) {
-                Util.storeInBuffer(getSubId(), new SubUpdate(dateTime, value, status));
+                Util.storeInBuffer(getSubId(), update);
                 unsentInBuffer = true;
             }
         }
@@ -163,33 +163,34 @@ public class SubscriptionRule extends DSLogger implements OutboundSubscribeHandl
         }
     }
     
-    private boolean sendUpdate(final DSDateTime dateTime, final DSElement value, final DSStatus status) {
+    private boolean sendUpdate(final SubUpdate update) {
         
         DSMap urlParams = urlParameters.copy();
         String body = this.body;
         for (String key: urlParamsWithValues) {
             String pattern = urlParams.getString(key);
             if (Constants.PLACEHOLDER_VALUE.equals(pattern)) {
-                urlParams.put(key, value);
+                urlParams.put(key, update.value);
             } else {
-                pattern = pattern.replaceAll(Constants.PLACEHOLDER_VALUE, value.toString());
-                pattern = pattern.replaceAll(Constants.PLACEHOLDER_TS, dateTime.toString());
-                pattern = pattern.replaceAll(Constants.PLACEHOLDER_STATUS, status.toString());
+                pattern = pattern.replaceAll(Constants.PLACEHOLDER_VALUE, update.value);
+                pattern = pattern.replaceAll(Constants.PLACEHOLDER_TS, update.dateTime);
+                pattern = pattern.replaceAll(Constants.PLACEHOLDER_STATUS, update.status);
                 urlParams.put(key, pattern);
             }
         }
         
         if (valuesInBody) {
-            body = body.replaceAll(Constants.PLACEHOLDER_VALUE, value.toString());
-            body = body.replaceAll(Constants.PLACEHOLDER_TS, dateTime.toString());
-            body = body.replaceAll(Constants.PLACEHOLDER_STATUS, status.toString());
+            body = body.replaceAll(Constants.PLACEHOLDER_VALUE, update.value);
+            body = body.replaceAll(Constants.PLACEHOLDER_TS, update.dateTime);
+            body = body.replaceAll(Constants.PLACEHOLDER_STATUS, update.status);
+            body = body.replaceAll(Constants.PLACEHOLDER_BLOCK_START, "");
+            body = body.replaceAll(Constants.PLACEHOLDER_BLOCK_END, "");
         }
         
-        info("Rule with sub path " + subPath + ": sending Update with value " + (value!=null ? value : "Null"));
+        info("Rule with sub path " + subPath + ": sending Update with value " + (update.value!=null ? update.value : "Null"));
         
-        Response resp = getWebClientProxy().invoke(method, restUrl, urlParams, body);
-        node.responseRecieved(resp, rowNum);
-        return resp.getStatus() == 200;
+        Response resp = restInvoke(urlParams, body);
+        return resp != null && resp.getStatus() == 200;
     }
     
     public Queue<SubUpdate> sendBatchUpdate(Queue<SubUpdate> updates) {
@@ -197,7 +198,7 @@ public class SubscriptionRule extends DSLogger implements OutboundSubscribeHandl
             Queue<SubUpdate> failed = new LinkedList<SubUpdate>();
             while (!updates.isEmpty()) {
                 SubUpdate update = updates.poll();
-                if (!sendUpdate(update.dateTime, update.value, update.status)) {
+                if (!sendUpdate(update)) {
                     failed.add(update);
                 }
             }
@@ -215,9 +216,9 @@ public class SubscriptionRule extends DSLogger implements OutboundSubscribeHandl
         while (!updates.isEmpty()) {
             SubUpdate update = updates.poll();
             updatesCopy.add(update);
-            String temp = block.replaceAll(Constants.PLACEHOLDER_VALUE, update.value.toString())
-                    .replaceAll(Constants.PLACEHOLDER_TS, update.dateTime.toString())
-                    .replaceAll(Constants.PLACEHOLDER_STATUS, update.status.toString());
+            String temp = block.replaceAll(Constants.PLACEHOLDER_VALUE, update.value)
+                    .replaceAll(Constants.PLACEHOLDER_TS, update.dateTime)
+                    .replaceAll(Constants.PLACEHOLDER_STATUS, update.status);
             sb.append(temp);
             if (!updates.isEmpty()) {
                 sb.append(',');
@@ -227,14 +228,24 @@ public class SubscriptionRule extends DSLogger implements OutboundSubscribeHandl
         String body = sb.toString();
         info("Rule with sub path " + subPath + ": sending batch update");
         
-        Response resp = getWebClientProxy().invoke(method, restUrl, urlParams, body);
-        node.responseRecieved(resp, rowNum);
-        if (resp.getStatus() == 200) {
+        Response resp = restInvoke(urlParams, body);
+        if (resp != null && resp.getStatus() == 200) {
             return null;
         } else {
             return updatesCopy;
         }
         
+    }
+    
+    private Response restInvoke(DSMap urlParams, String body) {
+        Response resp = null;
+        try {
+            resp = getWebClientProxy().invoke(method, restUrl, urlParams, body);
+        } catch (Exception e) {
+            warn("", e);
+        }
+        node.responseRecieved(resp, rowNum);
+        return resp;
     }
     
     public void close() {

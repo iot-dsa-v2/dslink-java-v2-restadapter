@@ -28,16 +28,23 @@ public class RuleTableNode extends AbstractRuleNode {
 
     @Override
     public void responseRecieved(Response resp, int rowNum) {
-        int status = resp.getStatus();
-        String data = resp.readEntity(String.class);
-
         DSList respTable = lastResponses.getElement().toList();
         DSMap respMap = respTable.getMap(rowNum);
-        respMap.put(Constants.LAST_RESPONSE_CODE, status);
-        respMap.put(Constants.LAST_RESPONSE_DATA, data);
-        respMap.put(Constants.LAST_RESPONSE_TS,
-                    (resp.getDate() != null ? DSDateTime.valueOf(resp.getDate().getTime())
-                            : DSDateTime.currentTime()).toString());
+        
+        if (resp == null) {
+            respMap.put(Constants.LAST_RESPONSE_CODE, -1);
+            respMap.put(Constants.LAST_RESPONSE_DATA, "Failed to send update");
+            respMap.put(Constants.LAST_RESPONSE_TS, DSDateTime.currentTime().toString());
+        } else {
+            int status = resp.getStatus();
+            String data = resp.readEntity(String.class);
+    
+            respMap.put(Constants.LAST_RESPONSE_CODE, status);
+            respMap.put(Constants.LAST_RESPONSE_DATA, data);
+            respMap.put(Constants.LAST_RESPONSE_TS,
+                        (resp.getDate() != null ? DSDateTime.valueOf(resp.getDate().getTime())
+                                : DSDateTime.currentTime()).toString());
+        }
         fire(VALUE_CHANGED, lastResponses);
     }
 

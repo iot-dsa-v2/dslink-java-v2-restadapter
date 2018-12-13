@@ -87,7 +87,7 @@ public class Util {
         if (buffer == null) {
             initBuffer();
         }
-        buffer.write(subId, update.dateTime.timeInMillis(), update);
+        buffer.write(subId, update.ts, update);
     }
     
 //    public static boolean isBufferEmpty(String subPath) {

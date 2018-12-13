@@ -134,12 +134,18 @@ public class RuleNode extends AbstractRuleNode {
 
     @Override
     public void responseRecieved(Response resp, int rowNum) {
-        int status = resp.getStatus();
-        String data = resp.readEntity(String.class);
-        
-        put(lastRespCode, DSInt.valueOf(status));
-        put(lastRespData, DSString.valueOf(data));
-        put(lastRespTs, DSString.valueOf(resp.getDate() != null ? DSDateTime.valueOf(resp.getDate().getTime()) : DSDateTime.currentTime()));
+        if (resp == null) {
+            put(lastRespCode, DSInt.valueOf(-1));
+            put(lastRespData, DSString.valueOf("Failed to send update"));
+            put(lastRespTs, DSString.valueOf(DSDateTime.currentTime()));
+        } else {
+            int status = resp.getStatus();
+            String data = resp.readEntity(String.class);
+            
+            put(lastRespCode, DSInt.valueOf(status));
+            put(lastRespData, DSString.valueOf(data));
+            put(lastRespTs, DSString.valueOf(resp.getDate() != null ? DSDateTime.valueOf(resp.getDate().getTime()) : DSDateTime.currentTime()));
+        }
     }
 
 }
