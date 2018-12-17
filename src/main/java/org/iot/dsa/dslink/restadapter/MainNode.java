@@ -65,6 +65,7 @@ public class MainNode extends DSMainNode implements PurgeSettings {
         declareDefault(Constants.ACT_ADD_OAUTH_PASSWORD_CONN, makeAddOauthPassConnectionAction());
         declareDefault(Constants.BUFFER_PURGE_ENABLED, DSBool.FALSE, "Whether old unsent records should automatically be purged from the buffer when the buffer gets too large");
         declareDefault(Constants.BUFFER_MAX_SIZE, DSLong.valueOf(1074000000), "Maximum size of buffer in bytes; only applies if auto-purge is enabled");
+        declareDefault("Docs", DSString.valueOf("https://github.com/iot-dsa-v2/dslink-java-v2-restadapter/blob/develop/docs/Usage_Guide.md")).setTransient(true).setReadOnly(true);
     }
     
     public boolean isPurgeEnabled() {
