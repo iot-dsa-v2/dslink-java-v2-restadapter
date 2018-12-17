@@ -1,9 +1,12 @@
 package org.iot.dsa.dslink.restadapter;
 
+import org.etsdb.util.PurgeSettings;
 import org.iot.dsa.dslink.DSIRequester;
 import org.iot.dsa.dslink.DSLinkConnection;
 import org.iot.dsa.dslink.DSMainNode;
+import org.iot.dsa.node.DSBool;
 import org.iot.dsa.node.DSInfo;
+import org.iot.dsa.node.DSLong;
 import org.iot.dsa.node.DSMap;
 import org.iot.dsa.node.DSNode;
 import org.iot.dsa.node.DSString;
@@ -17,13 +20,15 @@ import org.iot.dsa.node.event.DSITopic;
 import org.iot.dsa.util.DSException;
 
 /**
- * The root and only node of this link.
+ * The root node of this link.
  */
-public class MainNode extends DSMainNode {
-
-
+public class MainNode extends DSMainNode implements PurgeSettings {
     private static final Object requesterLock = new Object();
     private static DSIRequester requester;
+    public static MainNode instance;
+    
+    private DSInfo purgeEnabled = getInfo(Constants.BUFFER_PURGE_ENABLED);
+    private DSInfo maxBufferSize = getInfo(Constants.BUFFER_MAX_SIZE);
 
     public MainNode() {
     }
@@ -58,10 +63,21 @@ public class MainNode extends DSMainNode {
         declareDefault(Constants.ACT_ADD_BASIC_CONN, makeAddBasicConnectionAction());
         declareDefault(Constants.ACT_ADD_OAUTH_CLIENT_CONN, makeAddOauthClientConnectionAction());
         declareDefault(Constants.ACT_ADD_OAUTH_PASSWORD_CONN, makeAddOauthPassConnectionAction());
+        declareDefault(Constants.BUFFER_PURGE_ENABLED, DSBool.FALSE, "Whether old unsent records should automatically be purged from the buffer when the buffer gets too large");
+        declareDefault(Constants.BUFFER_MAX_SIZE, DSLong.valueOf(1074000000), "Maximum size of buffer in bytes; only applies if auto-purge is enabled");
+    }
+    
+    public boolean isPurgeEnabled() {
+        return purgeEnabled.getValue().toElement().toBoolean();
+    }
+    
+    public long getMaxSizeInBytes() {
+        return maxBufferSize.getValue().toElement().toLong();
     }
 
     @Override
     protected void onStarted() {
+        instance = this;
         getLink().getConnection().subscribe(
                 DSLinkConnection.CONNECTED, null, null,
                 new DSISubscriber() {

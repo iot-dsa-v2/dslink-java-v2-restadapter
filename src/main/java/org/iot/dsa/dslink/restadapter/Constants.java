@@ -21,6 +21,9 @@ public class Constants {
     public static final String MIN_REFRESH_RATE = "Minimum Refresh Rate";
     public static final String MAX_REFRESH_RATE = "Maximum Refresh Rate";
     public static final String USE_BUFFER = "Buffer Enabled";
+    public static final String MAX_BATCH_SIZE = "Maximum Batch Size";
+    public static final String BUFFER_PURGE_ENABLED = "Enable Buffer Auto-Purge";
+    public static final String BUFFER_MAX_SIZE = "Maximum Buffer Size";
     
     //Actions
     public static final String ACT_ADD_BASIC_CONN = "Basic Connection";
@@ -48,5 +51,4 @@ public class Constants {
     
     //MISC
     public static final String BUFFER_PATH = "buffer";
-    public static final int MAX_BATCH_SIZE = 50;
 }

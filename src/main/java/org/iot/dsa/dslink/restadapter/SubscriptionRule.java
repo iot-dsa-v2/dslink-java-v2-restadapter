@@ -255,6 +255,9 @@ public class SubscriptionRule extends DSLogger implements OutboundSubscribeHandl
         }
     }
     
+    public int getMaxBatchSize() {
+        return node.getMaxBatchSize();
+    }
 
     public WebClientProxy getWebClientProxy() {
         return node.getWebClientProxy();

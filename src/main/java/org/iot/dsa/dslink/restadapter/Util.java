@@ -7,6 +7,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.etsdb.Database;
 import org.etsdb.DatabaseFactory;
 import org.etsdb.QueryCallback;
+import org.etsdb.util.DbPurger;
+import org.iot.dsa.DSRuntime;
 import org.iot.dsa.io.json.JsonReader;
 import org.iot.dsa.node.DSElement;
 import org.iot.dsa.node.DSList;
@@ -81,6 +83,10 @@ public class Util {
     private static void initBuffer() {
         File f = new File(Constants.BUFFER_PATH);
         buffer = DatabaseFactory.createDatabase(f, new SubUpdateSerializer());
+        DbPurger purger = DbPurger.getInstance();
+        purger.addDb(buffer, MainNode.instance);
+        Runnable purgeRunner = purger.setupPurger();
+        DSRuntime.runAfterDelay(purgeRunner, 30000, 30000);
     }
     
     public static void storeInBuffer(String subId, SubUpdate update) {
@@ -106,12 +112,14 @@ public class Util {
 //        if (range == null || range.isUndefined()) {
 //            return;
 //        }
+        final int maxBatchSize = subRule.getMaxBatchSize();
         final LinkedList<SubUpdate> updates = new LinkedList<SubUpdate>();
+        final AtomicLong firstTs = new AtomicLong();
         final AtomicLong lastTs = new AtomicLong();
         int count;
         do {
             updates.clear();
-            buffer.query(subId, lastTs.get(), Long.MAX_VALUE, Constants.MAX_BATCH_SIZE, new QueryCallback<SubUpdate>() {
+            buffer.query(subId, lastTs.get(), Long.MAX_VALUE, maxBatchSize, new QueryCallback<SubUpdate>() {
                 
                 @Override
                 public void sample(String seriesId, long ts, SubUpdate value) {
@@ -124,7 +132,8 @@ public class Util {
             count = updates.size();
             Queue<SubUpdate> failedUpdates = subRule.sendBatchUpdate(updates);
             if (failedUpdates == null || failedUpdates.size() < count) {
-                buffer.purge(subId, lastTs.get());
+                buffer.delete(subId, firstTs.get(), lastTs.get());
+                firstTs.set(lastTs.get());
                 if (failedUpdates != null) {
                     for (SubUpdate failedUpdate: failedUpdates) {
                         storeInBuffer(subId, failedUpdate);
@@ -133,7 +142,7 @@ public class Util {
             } else {
                 return false;
             }
-        } while (count >= 50);
+        } while (count >= maxBatchSize);
         
         return true;
     }
