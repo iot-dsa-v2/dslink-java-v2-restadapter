@@ -20,6 +20,10 @@ public class Constants {
     public static final String RULE_TABLE = "Table";
     public static final String MIN_REFRESH_RATE = "Minimum Refresh Rate";
     public static final String MAX_REFRESH_RATE = "Maximum Refresh Rate";
+    public static final String USE_BUFFER = "Buffer Enabled";
+    public static final String MAX_BATCH_SIZE = "Maximum Batch Size";
+    public static final String BUFFER_PURGE_ENABLED = "Enable Buffer Auto-Purge";
+    public static final String BUFFER_MAX_SIZE = "Maximum Buffer Size";
     
     //Actions
     public static final String ACT_ADD_BASIC_CONN = "Basic Connection";
@@ -42,4 +46,9 @@ public class Constants {
     public static final String PLACEHOLDER_VALUE = "%VALUE%";
     public static final String PLACEHOLDER_TS = "%TIMESTAMP%";
     public static final String PLACEHOLDER_STATUS = "%STATUS%";
+    public static final String PLACEHOLDER_BLOCK_START = "%STARTBLOCK%";
+    public static final String PLACEHOLDER_BLOCK_END = "%ENDBLOCK%";
+    
+    //MISC
+    public static final String BUFFER_PATH = "buffer";
 }

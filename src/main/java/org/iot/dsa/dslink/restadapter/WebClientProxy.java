@@ -1,8 +1,6 @@
 package org.iot.dsa.dslink.restadapter;
 
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.cxf.rs.security.oauth2.client.OAuthClientUtils;
-import org.apache.cxf.rs.security.oauth2.common.ClientAccessToken;
 import org.iot.dsa.node.DSMap;
 import org.iot.dsa.node.DSMap.Entry;
 import org.iot.dsa.util.DSException;
