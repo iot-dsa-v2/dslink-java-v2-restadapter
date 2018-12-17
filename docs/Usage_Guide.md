@@ -15,6 +15,7 @@ Once you have a connection, you can set up a rule using the `Add Rule` action. T
 - Method: The REST method to use.
 - URL Parameters: A map of URL parameters to use when sending the REST request. If you want to use the value, timestamp, or status of an update in the params, use the placeholders `%VALUE%`, `%TIMESTAMP%` and `%STATUS%`.
 - Body: The body of the REST request, if applicable. Once again, use `%VALUE%`, `%TIMESTAMP%` and `%STATUS%` as placeholders.
+  - Note: If the REST API supports recieving multiple updates in one message, you can use `%STARTBLOCK%` and `%ENDBLOCK%` to denote the boundaries of a repeatable block. When needing to send many updates at once (in the case of having to catch up after a disconnect), the DSLink will repeat the block for each update and use commas to separate the blocks. Note that this will only work if all value, timestamp, and status placeholders are in the body and inside the repeatable block.
 - Minimum Refresh Rate: Optional, ensures that at least this many seconds elapse between updates. This means that the DSLink will suppress updates that are too close together. (Leave this parameter as 0 to not use this feature.)
 - Maximum Refresh Rate: Optional, ensures that an update gets sent every this many seconds. This means that if the DSA value updates too infrequently, the DSLink will send duplicate updates. (Leave this parameter as 0 to not use this feature.)
 ## Add a Rule Table
@@ -40,10 +41,12 @@ If you want to set up multiple rules in bulk, create a table of Rules in Atrius 
   },
   "data": {
     "<BuildingOS meter id>": [
+      %STARTBLOCK%
       [
         "%TIMESTAMP%",
         %VALUE%
       ]
+      %ENDBLOCK%
     ]
   }
 }
@@ -56,10 +59,12 @@ e.g:
   },
   "data": {
     "b9c7c0a03de611e895505254009e602c": [
+      %STARTBLOCK%
       [
         "%TIMESTAMP%",
         %VALUE%
       ]
+      %ENDBLOCK%
     ]
   }
 }
