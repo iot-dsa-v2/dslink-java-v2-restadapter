@@ -80,18 +80,11 @@ public class MainNode extends DSMainNode implements PurgeSettings {
     protected void onStarted() {
         instance = this;
         getLink().getConnection().subscribe(
-                DSLinkConnection.CONNECTED, null, null,
-                new DSISubscriber() {
+                DSLinkConnection.CONNECTED, null, null, new DSISubscriber() {
                     @Override
                     public void onEvent(DSNode node, DSInfo child,
                                         DSIEvent event) {
                         MainNode.setRequester(getLink().getConnection().getRequester());
-                    }
-
-                    @Override
-                    public void onUnsubscribed(DSITopic topic,
-                                               DSNode node,
-                                               DSInfo child) {
                     }
                 });
     }

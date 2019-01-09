@@ -37,7 +37,7 @@ public class ConnectionNode extends DSNode {
                 this.parameters = (DSMap) o;
             }
         } else {
-            put(Constants.PARAMS, parameters.copy()).setHidden(true);
+            put(Constants.PARAMS, parameters.copy()).setPrivate(true);
         }
     }
 
