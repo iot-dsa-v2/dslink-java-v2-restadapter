@@ -48,7 +48,7 @@ public class RuleNode extends AbstractRuleNode {
                 this.parameters = (DSMap) o;
             }
         } else {
-            put(Constants.PARAMS, parameters.copy()).setHidden(true);
+            put(Constants.PARAMS, parameters.copy()).setPrivate(true);
         }
     }
     

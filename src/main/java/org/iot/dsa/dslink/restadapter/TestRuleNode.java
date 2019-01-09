@@ -59,7 +59,7 @@ public class TestRuleNode extends DSNode {
                 this.subpath = o.toString();
             }
         } else {
-            put("SubPath", subpath).setHidden(true);
+            put("SubPath", subpath).setPrivate(true);
         }
     }
     
