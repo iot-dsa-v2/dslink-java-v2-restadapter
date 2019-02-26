@@ -8,29 +8,30 @@ import org.iot.dsa.node.DSBool;
 import org.iot.dsa.node.DSInfo;
 import org.iot.dsa.node.DSLong;
 import org.iot.dsa.node.DSMap;
-import org.iot.dsa.node.DSNode;
 import org.iot.dsa.node.DSString;
 import org.iot.dsa.node.DSValueType;
 import org.iot.dsa.node.action.ActionInvocation;
 import org.iot.dsa.node.action.ActionResult;
 import org.iot.dsa.node.action.DSAction;
-import org.iot.dsa.node.event.DSIEvent;
-import org.iot.dsa.node.event.DSISubscriber;
-import org.iot.dsa.node.event.DSITopic;
+import org.iot.dsa.node.event.DSEventFilter;
 import org.iot.dsa.util.DSException;
 
 /**
  * The root node of this link.
  */
 public class MainNode extends DSMainNode implements PurgeSettings {
+
     private static final Object requesterLock = new Object();
     private static DSIRequester requester;
     public static MainNode instance;
-    
-    private DSInfo purgeEnabled = getInfo(Constants.BUFFER_PURGE_ENABLED);
     private DSInfo maxBufferSize = getInfo(Constants.BUFFER_MAX_SIZE);
+    private DSInfo purgeEnabled = getInfo(Constants.BUFFER_PURGE_ENABLED);
 
     public MainNode() {
+    }
+
+    public long getMaxSizeInBytes() {
+        return maxBufferSize.getValue().toElement().toLong();
     }
 
     public static DSIRequester getRequester() {
@@ -44,6 +45,10 @@ public class MainNode extends DSMainNode implements PurgeSettings {
             }
             return requester;
         }
+    }
+
+    public boolean isPurgeEnabled() {
+        return purgeEnabled.getValue().toElement().toBoolean();
     }
 
     public static void setRequester(DSIRequester requester) {
@@ -63,30 +68,23 @@ public class MainNode extends DSMainNode implements PurgeSettings {
         declareDefault(Constants.ACT_ADD_BASIC_CONN, makeAddBasicConnectionAction());
         declareDefault(Constants.ACT_ADD_OAUTH_CLIENT_CONN, makeAddOauthClientConnectionAction());
         declareDefault(Constants.ACT_ADD_OAUTH_PASSWORD_CONN, makeAddOauthPassConnectionAction());
-        declareDefault(Constants.BUFFER_PURGE_ENABLED, DSBool.FALSE, "Whether old unsent records should automatically be purged from the buffer when the buffer gets too large");
-        declareDefault(Constants.BUFFER_MAX_SIZE, DSLong.valueOf(1074000000), "Maximum size of buffer in bytes; only applies if auto-purge is enabled");
-        declareDefault("Docs", DSString.valueOf("https://github.com/iot-dsa-v2/dslink-java-v2-restadapter/blob/develop/docs/Usage_Guide.md")).setTransient(true).setReadOnly(true);
-    }
-    
-    public boolean isPurgeEnabled() {
-        return purgeEnabled.getValue().toElement().toBoolean();
-    }
-    
-    public long getMaxSizeInBytes() {
-        return maxBufferSize.getValue().toElement().toLong();
+        declareDefault(Constants.BUFFER_PURGE_ENABLED, DSBool.FALSE,
+                       "Whether old unsent records should automatically be purged from the buffer when the buffer gets too large");
+        declareDefault(Constants.BUFFER_MAX_SIZE, DSLong.valueOf(1074000000),
+                       "Maximum size of buffer in bytes; only applies if auto-purge is enabled");
+        declareDefault("Docs", DSString.valueOf(
+                "https://github.com/iot-dsa-v2/dslink-java-v2-restadapter/blob/develop/docs/Usage_Guide.md"))
+                .setTransient(true).setReadOnly(true);
     }
 
     @Override
     protected void onStarted() {
         instance = this;
-        getLink().getConnection().subscribe(
-                DSLinkConnection.CONNECTED, null, null, new DSISubscriber() {
-                    @Override
-                    public void onEvent(DSNode node, DSInfo child,
-                                        DSIEvent event) {
-                        MainNode.setRequester(getLink().getConnection().getRequester());
-                    }
-                });
+        getLink().getUpstream().subscribe(new DSEventFilter(
+                ((event, node, child, data) -> MainNode.setRequester(
+                        getLink().getUpstream().getRequester())),
+                DSLinkConnection.CONNECTED_EVENT,
+                null));
     }
 
     private void addBasicConnection(DSMap parameters) {
