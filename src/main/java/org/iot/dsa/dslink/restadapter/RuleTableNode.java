@@ -15,8 +15,8 @@ import org.iot.dsa.time.DSDateTime;
 
 public class RuleTableNode extends AbstractRuleNode {
 
-    private final List<SubscriptionRule> rules = new ArrayList<SubscriptionRule>();
     private DSInfo lastResponses = getInfo(Constants.LAST_RESPONSES_TABLE);
+    private final List<SubscriptionRule> rules = new ArrayList<SubscriptionRule>();
     private DSList table;
 
     public RuleTableNode() {
@@ -30,7 +30,7 @@ public class RuleTableNode extends AbstractRuleNode {
     public void responseRecieved(Response resp, int rowNum) {
         DSList respTable = lastResponses.getElement().toList();
         DSMap respMap = respTable.getMap(rowNum);
-        
+
         if (resp == null) {
             respMap.put(Constants.LAST_RESPONSE_CODE, -1);
             respMap.put(Constants.LAST_RESPONSE_DATA, "Failed to send update");
@@ -38,14 +38,14 @@ public class RuleTableNode extends AbstractRuleNode {
         } else {
             int status = resp.getStatus();
             String data = resp.readEntity(String.class);
-    
+
             respMap.put(Constants.LAST_RESPONSE_CODE, status);
             respMap.put(Constants.LAST_RESPONSE_DATA, data);
             respMap.put(Constants.LAST_RESPONSE_TS,
                         (resp.getDate() != null ? DSDateTime.valueOf(resp.getDate().getTime())
                                 : DSDateTime.currentTime()).toString());
         }
-        fire(VALUE_CHANGED, lastResponses);
+        fire(VALUE_CHANGED_EVENT, lastResponses, null);
     }
 
     @Override
