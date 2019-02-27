@@ -13,6 +13,7 @@ import org.iot.dsa.dslink.requester.OutboundStream;
 import org.iot.dsa.dslink.requester.OutboundSubscribeHandler;
 import org.iot.dsa.logging.DSLogger;
 import org.iot.dsa.node.DSElement;
+import org.iot.dsa.node.DSIValue;
 import org.iot.dsa.node.DSMap;
 import org.iot.dsa.node.DSMap.Entry;
 import org.iot.dsa.node.DSStatus;
@@ -113,7 +114,7 @@ public class SubscriptionRule extends DSLogger implements OutboundSubscribeHandl
     }
 
     @Override
-    public void onInit(String path, int qos, OutboundStream stream) {
+    public void onInit(String path, DSIValue qos, OutboundStream stream) {
         info("Rule with sub path " + subPath + ": onInit called");
         this.stream = stream;
     }
