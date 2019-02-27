@@ -7,6 +7,7 @@ import org.iot.dsa.dslink.requester.OutboundStream;
 import org.iot.dsa.dslink.requester.OutboundSubscribeHandler;
 import org.iot.dsa.logging.DSLogger;
 import org.iot.dsa.node.DSElement;
+import org.iot.dsa.node.DSIValue;
 import org.iot.dsa.node.DSStatus;
 import org.iot.dsa.time.DSDateTime;
 import org.iot.dsa.util.DSException;
@@ -48,7 +49,7 @@ public class TestSubscriptionRule extends DSLogger implements OutboundSubscribeH
     }
 
     @Override
-    public void onInit(String path, int qos, OutboundStream stream) {
+    public void onInit(String path, DSIValue qos, OutboundStream stream) {
         info("Test Rule with sub path " + subpath + ": onInit called");
         this.stream = stream; 
     }
