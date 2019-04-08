@@ -6,9 +6,8 @@ import org.iot.dsa.node.DSMap.Entry;
 import org.iot.dsa.node.action.ActionInvocation;
 import org.iot.dsa.node.action.ActionResult;
 import org.iot.dsa.node.action.DSAction;
-import org.iot.dsa.util.DSException;
 
-public class ConnectionNode extends DSNode {
+public class ConnectionNode extends DSNode implements CredentialProvider {
 
     private DSMap parameters;
     private WebClientProxy clientProxy;
@@ -43,22 +42,7 @@ public class ConnectionNode extends DSNode {
 
     @Override
     protected void onStable() {
-        switch (AUTH_SCHEME.valueOf(getAuthScheme())) {
-            case NO_AUTH:
-                clientProxy = WebClientProxy.buildNoAuthClient();
-                break;
-            case BASIC_USR_PASS:
-                clientProxy = WebClientProxy.buildBasicUserPassClient(getUsername(), getPassword());
-                break;
-            case OAUTH2_CLIENT:
-                clientProxy = WebClientProxy.buildClientFlowOAuth2Client(getClientId(), getClientSecret(), getTokenURL());
-                break;
-            case OAUTH2_USR_PASS:
-                clientProxy = WebClientProxy.buildPasswordFlowOAuth2Client(getUsername(), getPassword(), getClientId(), getClientSecret(), getTokenURL());
-                break;
-            default:
-                DSException.throwRuntime(new RuntimeException("Unsupported AuthScheme: " + getAuthScheme()));
-        }
+        clientProxy = new WebClientProxy(this);
         put(Constants.ACT_EDIT, makeEditAction()).setTransient(true);
     }
 
@@ -128,7 +112,7 @@ public class ConnectionNode extends DSNode {
                 return null;
             }
         };
-        AUTH_SCHEME scheme = AUTH_SCHEME.valueOf(getAuthScheme());
+        AUTH_SCHEME scheme = getAuthScheme();
         if (!Util.AUTH_SCHEME.OAUTH2_CLIENT.equals(scheme)) {
             act.addDefaultParameter(Constants.USERNAME, DSString.valueOf(getUsername()), null);
             act.addDefaultParameter(Constants.PASSWORD, DSString.valueOf(getPassword()), null).setEditor("password");
@@ -149,28 +133,28 @@ public class ConnectionNode extends DSNode {
         onStable();
     }
 
-    private String getUsername() {
+    public String getUsername() {
         return parameters.getString(Constants.USERNAME);
     }
 
-    private String getPassword() {
+    public String getPassword() {
         return parameters.getString(Constants.PASSWORD);
     }
     
-    private String getClientId() {
+    public String getClientId() {
         return parameters.getString(Constants.CLIENT_ID);
     }
 
-    private String getClientSecret() {
+    public String getClientSecret() {
         return parameters.getString(Constants.CLIENT_SECRET);
     }
 
-    private String getTokenURL() {
+    public String getTokenURL() {
         return parameters.getString(Constants.TOKEN_URL);
     }
 
-    private String getAuthScheme() {
-        return parameters.getString(Constants.CONNTYPE);
+    public AUTH_SCHEME getAuthScheme() {
+        return AUTH_SCHEME.valueOf(parameters.getString(Constants.CONNTYPE));
     }
 
     public WebClientProxy getWebClientProxy() {

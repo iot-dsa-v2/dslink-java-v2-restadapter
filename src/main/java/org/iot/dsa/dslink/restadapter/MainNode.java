@@ -20,10 +20,10 @@ import org.iot.dsa.util.DSException;
  * The root node of this link.
  */
 public class MainNode extends DSMainNode implements PurgeSettings {
-
     private static final Object requesterLock = new Object();
     private static DSIRequester requester;
     public static MainNode instance;
+
     private DSInfo maxBufferSize = getInfo(Constants.BUFFER_MAX_SIZE);
     private DSInfo purgeEnabled = getInfo(Constants.BUFFER_PURGE_ENABLED);
 
