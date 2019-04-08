@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import javax.ws.rs.core.Response;
 import org.iot.dsa.DSRuntime;
 import org.iot.dsa.DSRuntime.Timer;
 import org.iot.dsa.dslink.DSIRequester;
@@ -19,6 +18,7 @@ import org.iot.dsa.node.DSMap.Entry;
 import org.iot.dsa.node.DSStatus;
 import org.iot.dsa.time.DSDateTime;
 import org.iot.dsa.util.DSException;
+import okhttp3.Response;
 
 public class SubscriptionRule extends DSLogger implements OutboundSubscribeHandler {
     
@@ -191,7 +191,7 @@ public class SubscriptionRule extends DSLogger implements OutboundSubscribeHandl
         info("Rule with sub path " + subPath + ": sending Update with value " + (update.value!=null ? update.value : "Null"));
         
         Response resp = restInvoke(urlParams, body);
-        return resp != null && resp.getStatus() == 200;
+        return resp != null && resp.code() == 200;
     }
     
     public Queue<SubUpdate> sendBatchUpdate(Queue<SubUpdate> updates) {
@@ -230,7 +230,7 @@ public class SubscriptionRule extends DSLogger implements OutboundSubscribeHandl
         info("Rule with sub path " + subPath + ": sending batch update");
         
         Response resp = restInvoke(urlParams, body);
-        if (resp != null && resp.getStatus() == 200) {
+        if (resp != null && resp.code() == 200) {
             return null;
         } else {
             return updatesCopy;
