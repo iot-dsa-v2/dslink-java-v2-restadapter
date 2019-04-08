@@ -18,7 +18,7 @@ public class Util {
     
     private static Database<SubUpdate> buffer = null;
 
-    enum AUTH_SCHEME {
+    public enum AUTH_SCHEME {
         NO_AUTH,
         BASIC_USR_PASS,
         OAUTH2_CLIENT,
