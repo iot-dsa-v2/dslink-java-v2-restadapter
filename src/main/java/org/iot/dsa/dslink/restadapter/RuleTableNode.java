@@ -1,8 +1,8 @@
 package org.iot.dsa.dslink.restadapter;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.ws.rs.core.Response;
 import org.iot.dsa.node.DSElement;
 import org.iot.dsa.node.DSIObject;
 import org.iot.dsa.node.DSInfo;
@@ -12,6 +12,7 @@ import org.iot.dsa.node.action.ActionInvocation;
 import org.iot.dsa.node.action.ActionResult;
 import org.iot.dsa.node.action.DSAction;
 import org.iot.dsa.time.DSDateTime;
+import okhttp3.Response;
 
 public class RuleTableNode extends AbstractRuleNode {
 
@@ -36,14 +37,19 @@ public class RuleTableNode extends AbstractRuleNode {
             respMap.put(Constants.LAST_RESPONSE_DATA, "Failed to send update");
             respMap.put(Constants.LAST_RESPONSE_TS, DSDateTime.currentTime().toString());
         } else {
-            int status = resp.getStatus();
-            String data = resp.readEntity(String.class);
+            int status = resp.code();
+            String data = null;
+            try {
+                data = resp.body().string();
+            } catch (IOException e) {
+                warn("", e);
+            } finally {
+                resp.close();
+            }
     
             respMap.put(Constants.LAST_RESPONSE_CODE, status);
             respMap.put(Constants.LAST_RESPONSE_DATA, data);
-            respMap.put(Constants.LAST_RESPONSE_TS,
-                        (resp.getDate() != null ? DSDateTime.valueOf(resp.getDate().getTime())
-                                : DSDateTime.currentTime()).toString());
+            respMap.put(Constants.LAST_RESPONSE_TS, DSDateTime.valueOf(resp.receivedResponseAtMillis()).toString());
         }
         fire(VALUE_CHANGED, lastResponses);
     }

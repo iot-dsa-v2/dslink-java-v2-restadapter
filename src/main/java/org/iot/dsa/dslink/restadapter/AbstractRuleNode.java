@@ -1,6 +1,5 @@
 package org.iot.dsa.dslink.restadapter;
 
-import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.iot.dsa.node.DSBool;
 import org.iot.dsa.node.DSIObject;
@@ -8,6 +7,7 @@ import org.iot.dsa.node.DSIValue;
 import org.iot.dsa.node.DSInfo;
 import org.iot.dsa.node.DSLong;
 import org.iot.dsa.node.DSNode;
+import okhttp3.Response;
 
 public abstract class AbstractRuleNode extends DSNode {
     private DSInfo bufferEnabled = getInfo(Constants.USE_BUFFER);

@@ -1,11 +1,13 @@
 package org.iot.dsa.dslink.restadapter;
 
-import org.apache.cxf.jaxrs.impl.ResponseBuilderImpl;
 import org.iot.dsa.node.DSLong;
 import org.iot.dsa.node.DSMap;
 import org.iot.dsa.node.DSStatus;
 import org.iot.dsa.time.DSDateTime;
 import org.junit.Test;
+import okhttp3.Protocol;
+import okhttp3.Request;
+import okhttp3.Response;
 import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
 import java.util.LinkedList;
@@ -40,7 +42,10 @@ public class SubscriptionRuleTests {
 //        MainNode.setRequester(requesterMock);
         
         WebClientProxy webClientProxy = mock(WebClientProxy.class);
-        when(webClientProxy.invoke(anyString(), anyString(), any(), anyString())).thenReturn(new ResponseBuilderImpl().status(200).build());
+        when(webClientProxy.invoke(anyString(), anyString(), any(), anyString()))
+        .thenReturn(new Response.Builder()
+                .request(new Request.Builder().url("https://api.buildingos.com/").build())
+                .message("Success").protocol(Protocol.HTTP_2).code(200).build());
         
         AbstractRuleNode node = mock(AbstractRuleNode.class);
         when(node.getWebClientProxy()).thenReturn(webClientProxy);
