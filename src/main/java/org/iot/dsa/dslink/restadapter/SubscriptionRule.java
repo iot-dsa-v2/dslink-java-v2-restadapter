@@ -20,7 +20,7 @@ import org.iot.dsa.time.DSDateTime;
 import org.iot.dsa.util.DSException;
 import okhttp3.Response;
 
-public class SubscriptionRule extends DSLogger implements OutboundSubscribeHandler {
+public class SubscriptionRule extends DSLogger implements OutboundSubscribeHandler, UpdateSender {
     
     private AbstractRuleNode node;
     private OutboundStream stream;

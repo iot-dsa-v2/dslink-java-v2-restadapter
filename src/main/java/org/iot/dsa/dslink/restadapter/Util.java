@@ -104,7 +104,7 @@ public class Util {
 //        return true;
 //    }
     
-    public static boolean processBuffer(String subId, SubscriptionRule subRule) {
+    public static boolean processBuffer(String subId, UpdateSender subRule) {
         if (buffer == null) {
             return true;
         }
