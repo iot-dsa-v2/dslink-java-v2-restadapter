@@ -1,6 +1,5 @@
 package org.iot.dsa.dslink.restadapter;
 
-import java.io.IOException;
 import org.iot.dsa.node.DSDouble;
 import org.iot.dsa.node.DSIObject;
 import org.iot.dsa.node.DSInfo;
@@ -12,7 +11,6 @@ import org.iot.dsa.node.action.ActionInvocation;
 import org.iot.dsa.node.action.ActionResult;
 import org.iot.dsa.node.action.DSAction;
 import org.iot.dsa.time.DSDateTime;
-import okhttp3.Response;
 
 public class RuleNode extends AbstractRuleNode {
     
@@ -134,25 +132,17 @@ public class RuleNode extends AbstractRuleNode {
     }
 
     @Override
-    public void responseRecieved(Response resp, int rowNum) {
+    public void responseRecieved(ResponseWrapper resp, int rowNum) {
         if (resp == null) {
             put(lastRespCode, DSInt.valueOf(-1));
             put(lastRespData, DSString.valueOf("Failed to send update"));
             put(lastRespTs, DSString.valueOf(DSDateTime.currentTime()));
         } else {
-            int status = resp.code();
-            String data = null;
-            try {
-                data = resp.body().string();
-            } catch (IOException e) {
-                warn("", e);
-            } finally {
-                resp.close();
-            }
-
+            int status = resp.getCode();
+            String data = resp.getData();
             put(lastRespCode, DSInt.valueOf(status));
             put(lastRespData, DSString.valueOf(data));
-            put(lastRespTs, DSString.valueOf(DSDateTime.valueOf(resp.receivedResponseAtMillis())));
+            put(lastRespTs, DSString.valueOf(resp.getTS()));
         }
     }
 

@@ -7,7 +7,6 @@ import org.iot.dsa.node.DSIValue;
 import org.iot.dsa.node.DSInfo;
 import org.iot.dsa.node.DSLong;
 import org.iot.dsa.node.DSNode;
-import okhttp3.Response;
 
 public abstract class AbstractRuleNode extends DSNode {
     private DSInfo bufferEnabled = getInfo(Constants.USE_BUFFER);
@@ -18,7 +17,7 @@ public abstract class AbstractRuleNode extends DSNode {
         return ((ConnectionNode) getParent()).getWebClientProxy();
     }
 
-    public abstract void responseRecieved(Response resp, int rowNum);
+    public abstract void responseRecieved(ResponseWrapper resp, int rowNum);
     
     @Override
     protected void declareDefaults() {
