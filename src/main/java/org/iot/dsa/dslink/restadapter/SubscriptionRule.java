@@ -192,8 +192,8 @@ public class SubscriptionRule extends AbstractSubscribeHandler implements Update
         
         node.info("Rule with sub path " + subPath + ": sending Update with value " + (update.value!=null ? update.value : "Null"));
         
-        Response resp = doSend(urlParams, body);
-        return resp != null && resp.code() == 200;
+        ResponseWrapper resp = doSend(urlParams, body);
+        return resp != null && resp.getCode() == 200;
     }
     
     @Override
@@ -232,8 +232,8 @@ public class SubscriptionRule extends AbstractSubscribeHandler implements Update
         String body = sb.toString();
         node.info("Rule with sub path " + subPath + ": sending batch update");
         
-        Response resp = doSend(urlParams, body);
-        if (resp != null && resp.code() == 200) {
+        ResponseWrapper resp = doSend(urlParams, body);
+        if (resp != null && resp.getCode() == 200) {
             return null;
         } else {
             return updatesCopy;
@@ -241,15 +241,16 @@ public class SubscriptionRule extends AbstractSubscribeHandler implements Update
         
     }
     
-    protected Response doSend(DSMap urlParams, String body) {
+    protected ResponseWrapper doSend(DSMap urlParams, String body) {
         Response resp = null;
         try {
             resp = getWebClientProxy().invoke(method, restUrl, urlParams, body);
         } catch (Exception e) {
             node.warn("", e);
         }
-        node.responseRecieved(new OkHttpResponseWrapper(resp), rowNum);
-        return resp;
+        ResponseWrapper respWrap = new OkHttpResponseWrapper(resp);
+        node.responseRecieved(respWrap, rowNum);
+        return respWrap;
     }
     
     public void close() {
