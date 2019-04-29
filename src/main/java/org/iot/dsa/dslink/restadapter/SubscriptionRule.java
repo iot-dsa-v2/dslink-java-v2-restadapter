@@ -7,23 +7,22 @@ import java.util.Queue;
 import org.iot.dsa.DSRuntime;
 import org.iot.dsa.DSRuntime.Timer;
 import org.iot.dsa.dslink.DSIRequester;
+import org.iot.dsa.dslink.requester.AbstractSubscribeHandler;
 import org.iot.dsa.dslink.requester.ErrorType;
 import org.iot.dsa.dslink.requester.OutboundStream;
-import org.iot.dsa.dslink.requester.OutboundSubscribeHandler;
-import org.iot.dsa.logging.DSLogger;
 import org.iot.dsa.node.DSElement;
 import org.iot.dsa.node.DSIValue;
+import org.iot.dsa.node.DSLong;
 import org.iot.dsa.node.DSMap;
 import org.iot.dsa.node.DSMap.Entry;
 import org.iot.dsa.node.DSStatus;
 import org.iot.dsa.time.DSDateTime;
-import org.iot.dsa.util.DSException;
 import okhttp3.Response;
 
-public class SubscriptionRule extends DSLogger implements OutboundSubscribeHandler, UpdateSender {
+public class SubscriptionRule extends AbstractSubscribeHandler implements UpdateSender {
     
     private AbstractRuleNode node;
-    private OutboundStream stream;
+    //private OutboundStream stream;
     private long lastUpdateTime = -1;
     private Timer future = null;
     private SubUpdate storedUpdate;
@@ -66,7 +65,7 @@ public class SubscriptionRule extends DSLogger implements OutboundSubscribeHandl
     private void init() {
         DSIRequester requester = MainNode.getRequester();
         int qos = 0;
-        requester.subscribe(this.subPath, qos, this);
+        requester.subscribe(this.subPath, DSLong.valueOf(qos), this);
     }
     
     private void learnPattern() {
@@ -103,25 +102,28 @@ public class SubscriptionRule extends DSLogger implements OutboundSubscribeHandl
 
     @Override
     public void onClose() {
-       info("Rule with sub path " + subPath + ": onClose called");
-       close();
+       super.onClose();
+       node.info("Rule with sub path " + subPath + ": onClose called");
+//       close();
     }
 
     @Override
     public void onError(ErrorType type, String msg) {
-        info("Rule with sub path " + subPath + ": onError called with msg " + msg);
-        DSException.throwRuntime(new RuntimeException(msg));
+        super.onError(type, msg);
+        node.info("Rule with sub path " + subPath + ": onError called with msg " + msg);
+//        DSException.throwRuntime(new RuntimeException(msg));
     }
 
     @Override
     public void onInit(String path, DSIValue qos, OutboundStream stream) {
-        info("Rule with sub path " + subPath + ": onInit called");
-        this.stream = stream;
+        super.onInit(path, qos, stream);
+        node.info("Rule with sub path " + subPath + ": onInit called");
+        //this.stream = stream;
     }
 
     @Override
     public void onUpdate(DSDateTime dateTime, DSElement value, DSStatus status) {
-        info("Rule with sub path " + subPath + ": onUpdate called with value " + (value!=null ? value : "Null"));
+        node.info("Rule with sub path " + subPath + ": onUpdate called with value " + (value!=null ? value : "Null"));
         storedUpdate = new SubUpdate(dateTime.toString(), value.toString(), status.toString(), dateTime.timeInMillis());
         if (lastUpdateTime < 0 || System.currentTimeMillis() - lastUpdateTime >= minRefreshRate) {
             if (future != null) {
@@ -188,7 +190,7 @@ public class SubscriptionRule extends DSLogger implements OutboundSubscribeHandl
             body = body.replaceAll(Constants.PLACEHOLDER_BLOCK_END, "");
         }
         
-        info("Rule with sub path " + subPath + ": sending Update with value " + (update.value!=null ? update.value : "Null"));
+        node.info("Rule with sub path " + subPath + ": sending Update with value " + (update.value!=null ? update.value : "Null"));
         
         Response resp = restInvoke(urlParams, body);
         return resp != null && resp.code() == 200;
@@ -227,7 +229,7 @@ public class SubscriptionRule extends DSLogger implements OutboundSubscribeHandl
         }
         sb.append(suffix);
         String body = sb.toString();
-        info("Rule with sub path " + subPath + ": sending batch update");
+        node.info("Rule with sub path " + subPath + ": sending batch update");
         
         Response resp = restInvoke(urlParams, body);
         if (resp != null && resp.code() == 200) {
@@ -243,16 +245,16 @@ public class SubscriptionRule extends DSLogger implements OutboundSubscribeHandl
         try {
             resp = getWebClientProxy().invoke(method, restUrl, urlParams, body);
         } catch (Exception e) {
-            warn("", e);
+            node.warn("", e);
         }
         node.responseRecieved(resp, rowNum);
         return resp;
     }
     
     public void close() {
-        if (stream != null && stream.isStreamOpen()) {
-            info("Rule with sub path " + subPath + ": closing Stream");
-            stream.closeStream();
+        if (!isClosed() && getStream() != null) {
+            node.info("Rule with sub path " + subPath + ": closing Stream");
+            getStream().closeStream();
         }
     }
     

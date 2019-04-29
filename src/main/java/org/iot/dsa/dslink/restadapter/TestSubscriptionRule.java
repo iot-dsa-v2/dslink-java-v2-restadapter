@@ -2,21 +2,21 @@ package org.iot.dsa.dslink.restadapter;
 
 import org.iot.dsa.DSRuntime;
 import org.iot.dsa.dslink.DSIRequester;
+import org.iot.dsa.dslink.requester.AbstractSubscribeHandler;
 import org.iot.dsa.dslink.requester.ErrorType;
 import org.iot.dsa.dslink.requester.OutboundStream;
 import org.iot.dsa.dslink.requester.OutboundSubscribeHandler;
-import org.iot.dsa.logging.DSLogger;
 import org.iot.dsa.node.DSElement;
 import org.iot.dsa.node.DSIValue;
+import org.iot.dsa.node.DSLong;
 import org.iot.dsa.node.DSStatus;
 import org.iot.dsa.time.DSDateTime;
-import org.iot.dsa.util.DSException;
 
-public class TestSubscriptionRule extends DSLogger implements OutboundSubscribeHandler {
+public class TestSubscriptionRule extends AbstractSubscribeHandler implements OutboundSubscribeHandler {
     
     private String subpath;
     private TestRuleNode node;
-    private OutboundStream stream;
+//    private OutboundStream stream;
 
     public TestSubscriptionRule(TestRuleNode testRuleNode, String subpath) {
         this.subpath = subpath;
@@ -32,38 +32,40 @@ public class TestSubscriptionRule extends DSLogger implements OutboundSubscribeH
     protected void init() {
         DSIRequester requester = MainNode.getRequester();
         int qos = 0;
-        requester.subscribe(this.subpath, qos, this);
+        requester.subscribe(this.subpath, DSLong.valueOf(qos), this);
         
     }
 
     @Override
     public void onClose() {
-        info("Test Rule with sub path " + subpath + ": onClose called");
-        close();
+        super.onClose();
+        node.info("Test Rule with sub path " + subpath + ": onClose called");
+//        close();
     }
 
     @Override
     public void onError(ErrorType type, String msg) {
-        info("Test Rule with sub path " + subpath + ": onError called with msg " + msg);
-        DSException.throwRuntime(new RuntimeException(msg));
+        super.onError(type, msg);
+        node.info("Test Rule with sub path " + subpath + ": onError called with msg " + msg);
+//        DSException.throwRuntime(new RuntimeException(msg));
     }
 
     @Override
     public void onInit(String path, DSIValue qos, OutboundStream stream) {
-        info("Test Rule with sub path " + subpath + ": onInit called");
-        this.stream = stream; 
+        super.onInit(path, qos, stream);
+        node.info("Test Rule with sub path " + subpath + ": onInit called");
+//        this.stream = stream; 
     }
 
     @Override
     public void onUpdate(DSDateTime dateTime, DSElement value, DSStatus status) {
-        info("Test Rule with sub path " + subpath + ": onUpdate called with value " + (value!=null ? value : "Null"));
-        
+        node.info("Test Rule with sub path " + subpath + ": onUpdate called with value " + (value!=null ? value : "Null"));
     }
     
     public void close() {
-        if (stream != null && stream.isStreamOpen()) {
-            info("Test Rule with sub path " + subpath + ": closing Stream");
-            stream.closeStream();
+        if (!isClosed() && getStream() != null) {
+            node.info("Test Rule with sub path " + subpath + ": closing Stream");
+            getStream().closeStream();
         }
     }
 
