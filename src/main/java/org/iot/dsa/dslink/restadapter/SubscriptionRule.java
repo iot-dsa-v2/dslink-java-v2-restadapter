@@ -40,7 +40,7 @@ public class SubscriptionRule extends AbstractSubscribeHandler implements Update
     private long minRefreshRate;
     private long maxRefreshRate;
     
-    private int rowNum;
+    protected int rowNum;
     
     public SubscriptionRule(AbstractRuleNode node, String subPath, String restUrl, String method, DSMap urlParameters, String body, double minRefreshRate, double maxRefreshRate, int rowNum) {
         this.node = node;
@@ -63,7 +63,7 @@ public class SubscriptionRule extends AbstractSubscribeHandler implements Update
     }
     
     private void init() {
-        DSIRequester requester = MainNode.getRequester();
+        DSIRequester requester = node.getRequester();
         int qos = 0;
         requester.subscribe(this.subPath, DSLong.valueOf(qos), this);
     }
@@ -166,7 +166,7 @@ public class SubscriptionRule extends AbstractSubscribeHandler implements Update
         }
     }
     
-    private boolean sendUpdate(final SubUpdate update) {
+    public boolean sendUpdate(final SubUpdate update) {
         
         DSMap urlParams = urlParameters.copy();
         String body = this.body;
@@ -192,10 +192,11 @@ public class SubscriptionRule extends AbstractSubscribeHandler implements Update
         
         node.info("Rule with sub path " + subPath + ": sending Update with value " + (update.value!=null ? update.value : "Null"));
         
-        Response resp = restInvoke(urlParams, body);
-        return resp != null && resp.code() == 200;
+        ResponseWrapper resp = doSend(urlParams, body);
+        return resp != null && resp.getCode() / 100 == 2;
     }
     
+    @Override
     public Queue<SubUpdate> sendBatchUpdate(Queue<SubUpdate> updates) {
         if (!batchable) {
             Queue<SubUpdate> failed = new LinkedList<SubUpdate>();
@@ -231,8 +232,8 @@ public class SubscriptionRule extends AbstractSubscribeHandler implements Update
         String body = sb.toString();
         node.info("Rule with sub path " + subPath + ": sending batch update");
         
-        Response resp = restInvoke(urlParams, body);
-        if (resp != null && resp.code() == 200) {
+        ResponseWrapper resp = doSend(urlParams, body);
+        if (resp != null && resp.getCode() / 100 == 2) {
             return null;
         } else {
             return updatesCopy;
@@ -240,15 +241,16 @@ public class SubscriptionRule extends AbstractSubscribeHandler implements Update
         
     }
     
-    private Response restInvoke(DSMap urlParams, String body) {
+    protected ResponseWrapper doSend(DSMap urlParams, String body) {
         Response resp = null;
         try {
             resp = getWebClientProxy().invoke(method, restUrl, urlParams, body);
         } catch (Exception e) {
             node.warn("", e);
         }
-        node.responseRecieved(resp, rowNum);
-        return resp;
+        ResponseWrapper respWrap = new OkHttpResponseWrapper(resp);
+        node.responseRecieved(respWrap, rowNum);
+        return respWrap;
     }
     
     public void close() {
@@ -264,6 +266,10 @@ public class SubscriptionRule extends AbstractSubscribeHandler implements Update
 
     public WebClientProxy getWebClientProxy() {
         return node.getWebClientProxy();
+    }
+    
+    public AbstractRuleNode getNode() {
+        return node;
     }
 
 }
