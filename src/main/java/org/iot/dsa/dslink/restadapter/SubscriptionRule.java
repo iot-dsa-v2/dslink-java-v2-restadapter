@@ -40,7 +40,7 @@ public class SubscriptionRule extends AbstractSubscribeHandler implements Update
     private long minRefreshRate;
     private long maxRefreshRate;
     
-    private int rowNum;
+    protected int rowNum;
     
     public SubscriptionRule(AbstractRuleNode node, String subPath, String restUrl, String method, DSMap urlParameters, String body, double minRefreshRate, double maxRefreshRate, int rowNum) {
         this.node = node;
