@@ -1,6 +1,7 @@
 package org.iot.dsa.dslink.restadapter;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.iot.dsa.dslink.DSIRequester;
 import org.iot.dsa.node.DSBool;
 import org.iot.dsa.node.DSIObject;
 import org.iot.dsa.node.DSIValue;
@@ -12,6 +13,10 @@ public abstract class AbstractRuleNode extends DSNode {
     private DSInfo bufferEnabled = getInfo(Constants.USE_BUFFER);
     private DSInfo maxBatchSize = getInfo(Constants.MAX_BATCH_SIZE);
     private String id;
+    
+    public DSIRequester getRequester() {
+        return MainNode.getRequester();
+    }
 
     public WebClientProxy getWebClientProxy() {
         return ((ConnectionNode) getParent()).getWebClientProxy();

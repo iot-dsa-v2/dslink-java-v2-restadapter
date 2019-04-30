@@ -63,7 +63,7 @@ public class SubscriptionRule extends AbstractSubscribeHandler implements Update
     }
     
     private void init() {
-        DSIRequester requester = MainNode.getRequester();
+        DSIRequester requester = node.getRequester();
         int qos = 0;
         requester.subscribe(this.subPath, DSLong.valueOf(qos), this);
     }
