@@ -1,6 +1,6 @@
 {
   "name": "dslink-java-v2-restadapter",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "Java DSA to REST adpater DSLink",
   "main": "bin/dslink-java-v2-restadapter",
   "configs": {

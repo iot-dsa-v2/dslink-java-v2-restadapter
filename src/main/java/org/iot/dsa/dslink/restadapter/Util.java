@@ -8,6 +8,7 @@ import org.etsdb.Database;
 import org.etsdb.DatabaseFactory;
 import org.etsdb.QueryCallback;
 import org.etsdb.util.DbPurger;
+import org.etsdb.util.PurgeSettings;
 import org.iot.dsa.DSRuntime;
 import org.iot.dsa.io.json.JsonReader;
 import org.iot.dsa.node.DSElement;
@@ -17,6 +18,7 @@ import org.iot.dsa.node.DSMap;
 public class Util {
     
     private static Database<SubUpdate> buffer = null;
+    private static PurgeSettings bufferPurgesSettings = MainNode.instance;
 
     public enum AUTH_SCHEME {
         NO_AUTH,
@@ -80,11 +82,15 @@ public class Util {
         }
     }
     
+    public static void setBufferPurgeSettings(PurgeSettings purgeSettings) {
+        bufferPurgesSettings = purgeSettings;
+    }
+    
     private static void initBuffer() {
         File f = new File(Constants.BUFFER_PATH);
         buffer = DatabaseFactory.createDatabase(f, new SubUpdateSerializer());
         DbPurger purger = DbPurger.getInstance();
-        purger.addDb(buffer, MainNode.instance);
+        purger.addDb(buffer, bufferPurgesSettings);
         Runnable purgeRunner = purger.setupPurger();
         DSRuntime.runAfterDelay(purgeRunner, 30000, 30000);
     }
