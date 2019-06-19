@@ -79,6 +79,7 @@ public class MainNode extends DSMainNode implements PurgeSettings {
 
     @Override
     protected void onStarted() {
+        super.onStarted();
         instance = this;
         getLink().getConnection().subscribe(new DSEventFilter(
                 ((event, node, child, data) -> MainNode.setRequester(

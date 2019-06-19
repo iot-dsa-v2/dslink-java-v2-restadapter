@@ -61,6 +61,7 @@ public class RuleTableNode extends AbstractRuleNode {
 
     @Override
     protected void onStable() {
+        super.onStable();
         parseRules();
         put(Constants.ACT_EDIT, makeEditAction()).setTransient(true);
     }
