@@ -53,6 +53,7 @@ public class TestRuleNode extends DSNode {
 
     @Override
     protected void onStarted() {
+        super.onStarted();
         if (this.subpath == null) {
             DSIObject o = get("SubPath");
             if (o != null) {
@@ -65,6 +66,7 @@ public class TestRuleNode extends DSNode {
     
     @Override
     protected void onStable() {
+        super.onStable();
         rule = new TestSubscriptionRule(this, subpath);
 //        put(Constants.ACT_EDIT, makeEditAction()).setTransient(true);
     }

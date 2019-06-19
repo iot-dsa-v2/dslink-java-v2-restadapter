@@ -30,6 +30,7 @@ public class ConnectionNode extends DSNode implements CredentialProvider {
 
     @Override
     protected void onStarted() {
+        super.onStarted();
         if (this.parameters == null) {
             DSIObject o = get(Constants.PARAMS);
             if (o instanceof DSMap) {
@@ -42,6 +43,7 @@ public class ConnectionNode extends DSNode implements CredentialProvider {
 
     @Override
     protected void onStable() {
+        super.onStable();
         clientProxy = new WebClientProxy(this);
         put(Constants.ACT_EDIT, makeEditAction()).setTransient(true);
     }
