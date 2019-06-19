@@ -33,7 +33,7 @@ public class RuleTableNode extends AbstractRuleNode {
         if (resp == null) {
             respMap.put(Constants.LAST_RESPONSE_CODE, -1);
             respMap.put(Constants.LAST_RESPONSE_DATA, "Failed to send update");
-            respMap.put(Constants.LAST_RESPONSE_TS, DSDateTime.currentTime().toString());
+            respMap.put(Constants.LAST_RESPONSE_TS, DSDateTime.now().toString());
         } else {
             int status = resp.getCode();
             String data = resp.getData();
