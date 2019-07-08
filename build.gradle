@@ -16,7 +16,7 @@ build {
 
 repositories {
     //mavenLocal()
-    mavenCentral()
+    jcenter()
     maven {
         url 'https://jitpack.io'
     }
@@ -24,7 +24,7 @@ repositories {
 
 dependencies {
     //implementation 'org.iot-dsa:dslink-v2-websocket:+' //for a locally installed sdk
-    implementation 'com.github.iot-dsa-v2.sdk-dslink-java-v2:dslink-v2-websocket:0.62.1'
+    api 'com.github.iot-dsa-v2.sdk-dslink-java-v2:dslink-v2-websocket:0.63.0'
     implementation 'commons-logging:commons-logging:+'
     implementation 'org.apache.commons:commons-lang3:3.8.1'
     implementation 'commons-io:commons-io:2.6'
@@ -38,6 +38,14 @@ dependencies {
     testImplementation 'org.mockito:mockito-all:+'
 }
 
+jar {
+    manifest {
+        attributes(
+                'Automatic-Module-Name' : 'org.iot.dsa.dslink.restadapter'
+        )
+    }
+}
+
 applicationDistribution.from(new File(project.projectDir, "/dslink.json"))
 
 run {
@@ -46,5 +54,5 @@ run {
 }
 
 wrapper {
-    gradleVersion = '4.10.2'
+    gradleVersion = '5.4.1'
 }
