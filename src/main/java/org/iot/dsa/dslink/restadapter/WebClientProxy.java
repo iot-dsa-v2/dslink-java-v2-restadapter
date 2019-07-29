@@ -2,6 +2,7 @@ package org.iot.dsa.dslink.restadapter;
 
 
 import java.io.IOException;
+import java.time.Duration;
 import org.iot.dsa.logging.DSLogger;
 import org.iot.dsa.node.DSMap;
 import org.iot.dsa.node.DSMap.Entry;
@@ -17,11 +18,19 @@ import okhttp3.Route;
 
 public class WebClientProxy extends DSLogger {
     private CredentialProvider credentials;
+    private Duration readTimeout = null;
+    private Duration writeTimeout = null;
 
     private OkHttpClient client;
 
     public WebClientProxy(CredentialProvider credentials) {
         this.credentials = credentials;
+    }
+    
+    public WebClientProxy(CredentialProvider credentials, long readTimeoutMillis, long writeTimeoutMillis) {
+        this(credentials);
+        this.readTimeout = Duration.ofMillis(readTimeoutMillis);
+        this.writeTimeout = Duration.ofMillis(writeTimeoutMillis);
     }
 
 //    public static WebClientProxy buildNoAuthClient() {
@@ -105,6 +114,12 @@ public class WebClientProxy extends DSLogger {
                 clientBuilder.addInterceptor(new OAuthInterceptor(this));
 //                client.header(HttpHeaders.AUTHORIZATION, authManager.createAuthorizationHeader());
                 break;
+        }
+        if (readTimeout != null) {
+            clientBuilder.readTimeout(readTimeout);
+        }
+        if (writeTimeout != null) {
+            clientBuilder.writeTimeout(writeTimeout);
         }
         return clientBuilder.build();
     }
