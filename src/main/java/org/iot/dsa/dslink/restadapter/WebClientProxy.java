@@ -1,20 +1,16 @@
 package org.iot.dsa.dslink.restadapter;
 
 
-import java.io.IOException;
 import java.time.Duration;
 import org.iot.dsa.logging.DSLogger;
 import org.iot.dsa.node.DSMap;
 import org.iot.dsa.node.DSMap.Entry;
-import okhttp3.Authenticator;
-import okhttp3.Credentials;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.Route;
 
 public class WebClientProxy extends DSLogger {
     private CredentialProvider credentials;
@@ -84,13 +80,13 @@ public class WebClientProxy extends DSLogger {
         }
     }
     
-    private static int responseCount(Response response) {
-        int result = 1;
-        while ((response = response.priorResponse()) != null) {
-            result++;
-        }
-        return result;
-    }
+//    private static int responseCount(Response response) {
+//        int result = 1;
+//        while ((response = response.priorResponse()) != null) {
+//            result++;
+//        }
+//        return result;
+//    }
 
     private OkHttpClient configureAuthorization() {
         OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder();
@@ -98,16 +94,17 @@ public class WebClientProxy extends DSLogger {
             case NO_AUTH:
                 break;
             case BASIC_USR_PASS:
-                clientBuilder.authenticator(new Authenticator() {
-                    @Override
-                    public Request authenticate(Route route, Response response) throws IOException {
-                        if (responseCount(response) >= 3) {
-                            return null;
-                        }
-                        String credential = Credentials.basic(credentials.getUsername(), credentials.getPassword());
-                        return response.request().newBuilder().header("Authorization", credential).build();
-                    }
-                });
+//                clientBuilder.authenticator(new Authenticator() {
+//                    @Override
+//                    public Request authenticate(Route route, Response response) throws IOException {
+//                        if (responseCount(response) >= 3) {
+//                            return null;
+//                        }
+//                        String credential = Credentials.basic(credentials.getUsername(), credentials.getPassword());
+//                        return response.request().newBuilder().header("Authorization", credential).build();
+//                    }
+//                });
+                clientBuilder.addInterceptor(new BasicAuthInterceptor(credentials.getUsername(), credentials.getPassword()));
                 break;
             case OAUTH2_CLIENT:
             case OAUTH2_USR_PASS:
