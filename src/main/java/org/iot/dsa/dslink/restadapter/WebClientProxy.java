@@ -1,11 +1,14 @@
 package org.iot.dsa.dslink.restadapter;
 
 
+import java.net.CookieManager;
+import java.net.CookiePolicy;
 import java.time.Duration;
 import org.iot.dsa.logging.DSLogger;
 import org.iot.dsa.node.DSMap;
 import org.iot.dsa.node.DSMap.Entry;
 import okhttp3.HttpUrl;
+import okhttp3.JavaNetCookieJar;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -118,6 +121,9 @@ public class WebClientProxy extends DSLogger {
         if (writeTimeout != null) {
             clientBuilder.writeTimeout(writeTimeout);
         }
+        CookieManager cookieManager = new CookieManager();
+        cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
+        clientBuilder.cookieJar(new JavaNetCookieJar(cookieManager));
         return clientBuilder.build();
     }
     
