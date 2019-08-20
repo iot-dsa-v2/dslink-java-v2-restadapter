@@ -48,11 +48,14 @@ public class WebClientProxy extends DSLogger {
 //        return new WebClientProxy(username, password, clientID, clientSecret, tokenURL, Util.AUTH_SCHEME.OAUTH2_USR_PASS);
 //    }
     
-
-    public Response invoke(String httpMethod, String address, DSMap urlParameters, Object body) {
+    public Request.Builder prepareInvoke(String httpMethod, String address, DSMap urlParameters, Object body) {
         prepareClient();
         Request.Builder requestBuilder = prepareRequest(address, urlParameters);
         requestBuilder.method(httpMethod, body == null ? null : RequestBody.create(MediaType.parse("application/json"), body.toString()));
+        return requestBuilder;
+    }
+    
+    public Response completeInvoke(Request.Builder requestBuilder) {
         Request request = requestBuilder.build();
         Response response = null;
         try {
@@ -61,6 +64,12 @@ public class WebClientProxy extends DSLogger {
             error("", e);
         }
         return response;
+    }
+    
+
+    public Response invoke(String httpMethod, String address, DSMap urlParameters, Object body) {
+        Request.Builder requestBuilder = prepareInvoke(httpMethod, address, urlParameters, body);
+        return completeInvoke(requestBuilder);
     }
     
     private Request.Builder prepareRequest(String address, DSMap urlParameters) {
