@@ -1,11 +1,11 @@
 package org.iot.dsa.dslink.restadapter;
 
+import org.iot.dsa.dslink.ActionResults;
 import org.iot.dsa.node.DSIObject;
 import org.iot.dsa.node.DSInfo;
 import org.iot.dsa.node.DSMap;
 import org.iot.dsa.node.DSNode;
-import org.iot.dsa.node.action.ActionInvocation;
-import org.iot.dsa.node.action.ActionResult;
+import org.iot.dsa.node.action.DSIActionRequest;
 import org.iot.dsa.node.action.DSAction;
 
 public class TestRuleNode extends DSNode {
@@ -31,8 +31,8 @@ public class TestRuleNode extends DSNode {
     private DSIObject makeRefreshAction() {
         return new DSAction() {
             @Override
-            public ActionResult invoke(DSInfo info, ActionInvocation invocation) {
-                ((TestRuleNode) info.getParent()).refresh();
+            public ActionResults invoke(DSIActionRequest req) {
+                ((TestRuleNode) req.getTarget()).refresh();
                 return null;
             }
 
@@ -74,8 +74,8 @@ public class TestRuleNode extends DSNode {
     private DSAction makeRemoveAction() {
         return new DSAction() {
             @Override
-            public ActionResult invoke(DSInfo info, ActionInvocation invocation) {
-                ((TestRuleNode) info.getParent()).delete();
+            public ActionResults invoke(DSIActionRequest req) {
+                ((TestRuleNode) req.getTarget()).delete();
                 return null;
             }
 

@@ -1,6 +1,7 @@
 package org.iot.dsa.dslink.restadapter;
 
 import org.etsdb.util.PurgeSettings;
+import org.iot.dsa.dslink.ActionResults;
 import org.iot.dsa.dslink.DSIRequester;
 import org.iot.dsa.dslink.DSLinkConnection;
 import org.iot.dsa.dslink.DSMainNode;
@@ -9,10 +10,8 @@ import org.iot.dsa.node.DSInfo;
 import org.iot.dsa.node.DSLong;
 import org.iot.dsa.node.DSMap;
 import org.iot.dsa.node.DSString;
-import org.iot.dsa.node.DSValueType;
-import org.iot.dsa.node.action.ActionInvocation;
-import org.iot.dsa.node.action.ActionResult;
 import org.iot.dsa.node.action.DSAction;
+import org.iot.dsa.node.action.DSIActionRequest;
 import org.iot.dsa.node.event.DSEventFilter;
 import org.iot.dsa.util.DSException;
 
@@ -20,6 +19,7 @@ import org.iot.dsa.util.DSException;
  * The root node of this link.
  */
 public class MainNode extends DSMainNode implements PurgeSettings {
+
     private static final Object requesterLock = new Object();
     private static DSIRequester requester;
     public static MainNode instance;
@@ -111,28 +111,28 @@ public class MainNode extends DSMainNode implements PurgeSettings {
     }
 
     private DSAction makeAddBasicConnectionAction() {
-        DSAction act = new DSAction.Parameterless() {
+        DSAction act = new DSAction() {
             @Override
-            public ActionResult invoke(DSInfo target, ActionInvocation invocation) {
-                ((MainNode) target.get()).addBasicConnection(invocation.getParameters());
+            public ActionResults invoke(DSIActionRequest req) {
+                ((MainNode) req.getTarget()).addBasicConnection(req.getParameters());
                 return null;
             }
         };
-        act.addParameter(Constants.NAME, DSValueType.STRING, null);
-        act.addParameter(Constants.USERNAME, DSValueType.STRING, null);
-        act.addParameter(Constants.PASSWORD, DSValueType.STRING, null).setEditor("password");
+        act.addParameter(Constants.NAME, DSString.NULL, null);
+        act.addParameter(Constants.USERNAME, DSString.NULL, null);
+        act.addParameter(Constants.PASSWORD, DSString.NULL, null).setEditor("password");
         return act;
     }
 
     private DSAction makeAddOauthClientConnectionAction() {
-        DSAction act = new DSAction.Parameterless() {
+        DSAction act = new DSAction() {
             @Override
-            public ActionResult invoke(DSInfo target, ActionInvocation invocation) {
-                ((MainNode) target.get()).addOAuthClientConnection(invocation.getParameters());
+            public ActionResults invoke(DSIActionRequest req) {
+                ((MainNode) req.getTarget()).addOAuthClientConnection(req.getParameters());
                 return null;
             }
         };
-        act.addParameter(Constants.NAME, DSValueType.STRING, null);
+        act.addParameter(Constants.NAME, DSString.NULL, null);
         act.addDefaultParameter(Constants.CLIENT_ID, DSString.EMPTY, null);
         act.addDefaultParameter(Constants.CLIENT_SECRET, DSString.EMPTY, null)
            .setEditor("password");
@@ -141,19 +141,19 @@ public class MainNode extends DSMainNode implements PurgeSettings {
     }
 
     private DSAction makeAddOauthPassConnectionAction() {
-        DSAction act = new DSAction.Parameterless() {
+        DSAction act = new DSAction() {
             @Override
-            public ActionResult invoke(DSInfo target, ActionInvocation invocation) {
-                ((MainNode) target.get()).addOAuthPasswordConnection(invocation.getParameters());
+            public ActionResults invoke(DSIActionRequest req) {
+                ((MainNode) req.getTarget()).addOAuthPasswordConnection(req.getParameters());
                 return null;
             }
         };
-        act.addParameter(Constants.NAME, DSValueType.STRING, null);
-        act.addParameter(Constants.USERNAME, DSValueType.STRING, null);
-        act.addParameter(Constants.PASSWORD, DSValueType.STRING, null).setEditor("password");
-        act.addParameter(Constants.CLIENT_ID, DSValueType.STRING, null);
-        act.addParameter(Constants.CLIENT_SECRET, DSValueType.STRING, null).setEditor("password");
-        act.addParameter(Constants.TOKEN_URL, DSValueType.STRING, null);
+        act.addParameter(Constants.NAME, DSString.NULL, null);
+        act.addParameter(Constants.USERNAME, DSString.NULL, null);
+        act.addParameter(Constants.PASSWORD, DSString.NULL, null).setEditor("password");
+        act.addParameter(Constants.CLIENT_ID, DSString.NULL, null);
+        act.addParameter(Constants.CLIENT_SECRET, DSString.NULL, null).setEditor("password");
+        act.addParameter(Constants.TOKEN_URL, DSString.NULL, null);
         return act;
     }
 }

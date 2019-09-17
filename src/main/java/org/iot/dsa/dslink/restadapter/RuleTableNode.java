@@ -2,20 +2,20 @@ package org.iot.dsa.dslink.restadapter;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.iot.dsa.dslink.ActionResults;
 import org.iot.dsa.node.DSElement;
 import org.iot.dsa.node.DSIObject;
 import org.iot.dsa.node.DSInfo;
 import org.iot.dsa.node.DSList;
 import org.iot.dsa.node.DSMap;
-import org.iot.dsa.node.action.ActionInvocation;
-import org.iot.dsa.node.action.ActionResult;
 import org.iot.dsa.node.action.DSAction;
+import org.iot.dsa.node.action.DSIActionRequest;
 import org.iot.dsa.time.DSDateTime;
 
 public class RuleTableNode extends AbstractRuleNode {
 
-    private final List<SubscriptionRule> rules = new ArrayList<SubscriptionRule>();
     private DSInfo lastResponses = getInfo(Constants.LAST_RESPONSES_TABLE);
+    private final List<SubscriptionRule> rules = new ArrayList<SubscriptionRule>();
     private DSList table;
 
     public RuleTableNode() {
@@ -29,7 +29,7 @@ public class RuleTableNode extends AbstractRuleNode {
     public void responseRecieved(ResponseWrapper resp, int rowNum) {
         DSList respTable = lastResponses.getElement().toList();
         DSMap respMap = respTable.getMap(rowNum);
-        
+
         if (resp == null) {
             respMap.put(Constants.LAST_RESPONSE_CODE, -1);
             respMap.put(Constants.LAST_RESPONSE_DATA, "Failed to send update");
@@ -37,7 +37,7 @@ public class RuleTableNode extends AbstractRuleNode {
         } else {
             int status = resp.getCode();
             String data = resp.getData();
-    
+
             respMap.put(Constants.LAST_RESPONSE_CODE, status);
             respMap.put(Constants.LAST_RESPONSE_DATA, data);
             respMap.put(Constants.LAST_RESPONSE_TS, resp.getTS().toString());
@@ -92,10 +92,10 @@ public class RuleTableNode extends AbstractRuleNode {
     }
 
     private DSIObject makeEditAction() {
-        DSAction act = new DSAction.Parameterless() {
+        DSAction act = new DSAction() {
             @Override
-            public ActionResult invoke(DSInfo target, ActionInvocation invocation) {
-                ((RuleTableNode) target.get()).edit(invocation.getParameters());
+            public ActionResults invoke(DSIActionRequest req) {
+                ((RuleTableNode) req.getTarget()).edit(req.getParameters());
                 return null;
             }
         };
@@ -104,10 +104,10 @@ public class RuleTableNode extends AbstractRuleNode {
     }
 
     private DSAction makeRemoveAction() {
-        return new DSAction.Parameterless() {
+        return new DSAction() {
             @Override
-            public ActionResult invoke(DSInfo target, ActionInvocation invocation) {
-                ((RuleTableNode) target.get()).delete();
+            public ActionResults invoke(DSIActionRequest req) {
+                ((RuleTableNode) req.getTarget()).delete();
                 return null;
             }
         };
