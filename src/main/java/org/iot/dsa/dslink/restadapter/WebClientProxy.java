@@ -1,12 +1,6 @@
 package org.iot.dsa.dslink.restadapter;
 
 
-import java.net.CookieManager;
-import java.net.CookiePolicy;
-import java.time.Duration;
-import org.iot.dsa.logging.DSLogger;
-import org.iot.dsa.node.DSMap;
-import org.iot.dsa.node.DSMap.Entry;
 import okhttp3.HttpUrl;
 import okhttp3.JavaNetCookieJar;
 import okhttp3.MediaType;
@@ -14,22 +8,31 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.iot.dsa.logging.DSLogger;
+import org.iot.dsa.node.DSMap;
+import org.iot.dsa.node.DSMap.Entry;
+
+import java.net.CookieManager;
+import java.net.CookiePolicy;
+import java.util.concurrent.TimeUnit;
 
 public class WebClientProxy extends DSLogger {
+
     private CredentialProvider credentials;
-    private Duration readTimeout = null;
-    private Duration writeTimeout = null;
+    private long readTimeout = -1;
+    private long writeTimeout = -1;
 
     private OkHttpClient client;
 
     public WebClientProxy(CredentialProvider credentials) {
         this.credentials = credentials;
     }
-    
-    public WebClientProxy(CredentialProvider credentials, long readTimeoutMillis, long writeTimeoutMillis) {
+
+    public WebClientProxy(CredentialProvider credentials, long readTimeoutMillis,
+            long writeTimeoutMillis) {
         this(credentials);
-        this.readTimeout = Duration.ofMillis(readTimeoutMillis);
-        this.writeTimeout = Duration.ofMillis(writeTimeoutMillis);
+        this.readTimeout = readTimeoutMillis;
+        this.writeTimeout = writeTimeoutMillis;
     }
 
 //    public static WebClientProxy buildNoAuthClient() {
@@ -47,14 +50,16 @@ public class WebClientProxy extends DSLogger {
 //    public static WebClientProxy buildPasswordFlowOAuth2Client(String username, String password, String clientID, String clientSecret, String tokenURL) {
 //        return new WebClientProxy(username, password, clientID, clientSecret, tokenURL, Util.AUTH_SCHEME.OAUTH2_USR_PASS);
 //    }
-    
-    public Request.Builder prepareInvoke(String httpMethod, String address, DSMap urlParameters, Object body) {
+
+    public Request.Builder prepareInvoke(String httpMethod, String address, DSMap urlParameters,
+            Object body) {
         prepareClient();
         Request.Builder requestBuilder = prepareRequest(address, urlParameters);
-        requestBuilder.method(httpMethod, body == null ? null : RequestBody.create(MediaType.parse("application/json"), body.toString()));
+        requestBuilder.method(httpMethod, body == null ? null :
+                RequestBody.create(MediaType.parse("application/json"), body.toString()));
         return requestBuilder;
     }
-    
+
     public Response completeInvoke(Request.Builder requestBuilder) {
         Request request = requestBuilder.build();
         Response response = null;
@@ -65,17 +70,17 @@ public class WebClientProxy extends DSLogger {
         }
         return response;
     }
-    
+
 
     public Response invoke(String httpMethod, String address, DSMap urlParameters, Object body) {
         Request.Builder requestBuilder = prepareInvoke(httpMethod, address, urlParameters, body);
         return completeInvoke(requestBuilder);
     }
-    
+
     private Request.Builder prepareRequest(String address, DSMap urlParameters) {
         HttpUrl.Builder urlBuilder = HttpUrl.parse(address).newBuilder();
 
-        for (Entry entry: urlParameters) {
+        for (Entry entry : urlParameters) {
             Object value = Util.dsElementToObject(entry.getValue());
             urlBuilder.addQueryParameter(entry.getKey(), value.toString());
         }
@@ -85,13 +90,13 @@ public class WebClientProxy extends DSLogger {
                 .addHeader("Content-Type", "application/json");
         return requestBuilder;
     }
-    
+
     private void prepareClient() {
         if (client == null) {
-            client  = configureAuthorization();
+            client = configureAuthorization();
         }
     }
-    
+
 //    private static int responseCount(Response response) {
 //        int result = 1;
 //        while ((response = response.priorResponse()) != null) {
@@ -116,7 +121,8 @@ public class WebClientProxy extends DSLogger {
 //                        return response.request().newBuilder().header("Authorization", credential).build();
 //                    }
 //                });
-                clientBuilder.addInterceptor(new BasicAuthInterceptor(credentials.getUsername(), credentials.getPassword()));
+                clientBuilder.addInterceptor(new BasicAuthInterceptor(credentials.getUsername(),
+                        credentials.getPassword()));
                 break;
             case OAUTH2_CLIENT:
             case OAUTH2_USR_PASS:
@@ -124,25 +130,26 @@ public class WebClientProxy extends DSLogger {
 //                client.header(HttpHeaders.AUTHORIZATION, authManager.createAuthorizationHeader());
                 break;
         }
-        if (readTimeout != null) {
-            clientBuilder.readTimeout(readTimeout);
+        if (readTimeout > 0) {
+            clientBuilder.connectTimeout(readTimeout, TimeUnit.MILLISECONDS);
+            clientBuilder.readTimeout(readTimeout, TimeUnit.MILLISECONDS);
         }
-        if (writeTimeout != null) {
-            clientBuilder.writeTimeout(writeTimeout);
+        if (writeTimeout > 0) {
+            clientBuilder.writeTimeout(writeTimeout, TimeUnit.MILLISECONDS);
         }
         CookieManager cookieManager = new CookieManager();
         cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
         clientBuilder.cookieJar(new JavaNetCookieJar(cookieManager));
         return clientBuilder.build();
     }
-    
+
     public OkHttpClient getClient() {
         if (client == null) {
             prepareClient();
         }
         return client;
     }
-    
+
     public String getUsername() {
         return credentials.getUsername();
     }
@@ -150,7 +157,7 @@ public class WebClientProxy extends DSLogger {
     public String getPassword() {
         return credentials.getPassword();
     }
-    
+
     public String getClientID() {
         return credentials.getClientId();
     }
@@ -162,9 +169,9 @@ public class WebClientProxy extends DSLogger {
     public String getTokenURL() {
         return credentials.getTokenURL();
     }
-    
+
     public Util.AUTH_SCHEME getScheme() {
         return credentials.getAuthScheme();
     }
-    
+
 }

@@ -1,6 +1,6 @@
 apply plugin: 'application'
 apply plugin: 'java-library'
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 // Version is taken from dslink.json
 build {
@@ -13,21 +13,21 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 repositories {
-    jcenter()
     mavenLocal()
+    mavenCentral()
     maven {
         url 'https://jitpack.io'
     }
 }
 
 dependencies {
-    //api 'org.iot-dsa:dslink-v2-websocket:+' //for a locally installed sdk
-    api 'com.github.iot-dsa-v2.sdk-dslink-java-v2:dslink-v2-websocket:0.75.3'
+    //api 'org.iot-dsa:dslink-v2-websocket:0.76.0' //for a locally installed sdk
+    api 'com.github.iot-dsa-v2.sdk-dslink-java-v2:dslink-v2-websocket:0.76.0'
     api 'com.squareup.okhttp3:okhttp:3.14.0'
-    api 'com.squareup.okhttp3:okhttp-urlconnection:3.8.1'
-    api 'org.apache.commons:commons-lang3:3.8.1'
-    implementation 'commons-logging:commons-logging:+'
-    implementation 'commons-io:commons-io:2.6'
+    api 'com.squareup.okhttp3:okhttp-urlconnection:3.14.0'
+    api 'org.apache.commons:commons-lang3:3.11'
+    implementation 'commons-logging:commons-logging:1.2'
+    implementation 'commons-io:commons-io:2.8.0'
 
     testImplementation 'junit:junit:+'
     testImplementation 'org.mockito:mockito-all:+'
@@ -38,6 +38,14 @@ jar {
         attributes(
                 'Automatic-Module-Name' : 'org.iot.dsa.dslink.restadapter'
         )
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
     }
 }
 
