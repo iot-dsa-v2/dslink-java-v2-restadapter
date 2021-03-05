@@ -21,8 +21,8 @@ repositories {
 }
 
 dependencies {
-    //api 'org.iot-dsa:dslink-v2-websocket:0.76.0' //for a locally installed sdk
-    api 'com.github.iot-dsa-v2.sdk-dslink-java-v2:dslink-v2-websocket:0.76.0'
+    //api 'org.iot-dsa:dslink-v2-websocket:+' //for a locally installed sdk
+    api 'com.github.iot-dsa-v2.sdk-dslink-java-v2:dslink-v2-websocket:0.77.0'
     api 'com.squareup.okhttp3:okhttp:3.14.0'
     api 'com.squareup.okhttp3:okhttp-urlconnection:3.14.0'
     api 'org.apache.commons:commons-lang3:3.11'
