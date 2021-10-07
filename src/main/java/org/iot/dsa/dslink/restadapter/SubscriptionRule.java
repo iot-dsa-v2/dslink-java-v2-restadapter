@@ -103,27 +103,27 @@ public class SubscriptionRule extends AbstractSubscribeHandler implements Update
     @Override
     public void onClose() {
        super.onClose();
-       node.info("Rule with sub path " + subPath + ": onClose called");
+       node.debug("Rule with sub path " + subPath + ": onClose called");
 //       close();
     }
 
     @Override
     public void onError(ErrorType type, String msg) {
         super.onError(type, msg);
-        node.info("Rule with sub path " + subPath + ": onError called with msg " + msg);
+        node.debug("Rule with sub path " + subPath + ": onError called with msg " + msg);
 //        DSException.throwRuntime(new RuntimeException(msg));
     }
 
     @Override
     public void onInit(String path, DSIValue qos, OutboundStream stream) {
         super.onInit(path, qos, stream);
-        node.info("Rule with sub path " + subPath + ": onInit called");
+        node.debug("Rule with sub path " + subPath + ": onInit called");
         //this.stream = stream;
     }
 
     @Override
     public void onUpdate(DSDateTime dateTime, DSElement value, DSStatus status) {
-        node.info("Rule with sub path " + subPath + ": onUpdate called with value " + (value!=null ? value : "Null"));
+        node.debug("Rule with sub path " + subPath + ": onUpdate called with value " + (value!=null ? value : "Null"));
         storedUpdate = new SubUpdate(dateTime.toString(), value.toString(), status.toString(), dateTime.timeInMillis());
         if (lastUpdateTime < 0 || System.currentTimeMillis() - lastUpdateTime >= minRefreshRate) {
             if (future != null) {
@@ -190,7 +190,7 @@ public class SubscriptionRule extends AbstractSubscribeHandler implements Update
             body = body.replaceAll(Constants.PLACEHOLDER_BLOCK_END, "");
         }
         
-        node.info("Rule with sub path " + subPath + ": sending Update with value " + (update.value!=null ? update.value : "Null"));
+        node.debug("Rule with sub path " + subPath + ": sending Update with value " + (update.value!=null ? update.value : "Null"));
         
         ResponseWrapper resp = doSend(urlParams, body);
         return resp != null && resp.getCode() / 100 == 2;
@@ -230,7 +230,7 @@ public class SubscriptionRule extends AbstractSubscribeHandler implements Update
         }
         sb.append(suffix);
         String body = sb.toString();
-        node.info("Rule with sub path " + subPath + ": sending batch update");
+        node.debug("Rule with sub path " + subPath + ": sending batch update");
         
         ResponseWrapper resp = doSend(urlParams, body);
         if (resp != null && resp.getCode() / 100 == 2) {
@@ -255,7 +255,7 @@ public class SubscriptionRule extends AbstractSubscribeHandler implements Update
     
     public void close() {
         if (!isClosed() && getStream() != null) {
-            node.info("Rule with sub path " + subPath + ": closing Stream");
+            node.debug("Rule with sub path " + subPath + ": closing Stream");
             getStream().closeStream();
         }
     }

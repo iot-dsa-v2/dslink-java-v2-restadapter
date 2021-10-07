@@ -39,32 +39,32 @@ public class TestSubscriptionRule extends AbstractSubscribeHandler implements Ou
     @Override
     public void onClose() {
         super.onClose();
-        node.info("Test Rule with sub path " + subpath + ": onClose called");
+        node.debug("Test Rule with sub path " + subpath + ": onClose called");
 //        close();
     }
 
     @Override
     public void onError(ErrorType type, String msg) {
         super.onError(type, msg);
-        node.info("Test Rule with sub path " + subpath + ": onError called with msg " + msg);
+        node.debug("Test Rule with sub path " + subpath + ": onError called with msg " + msg);
 //        DSException.throwRuntime(new RuntimeException(msg));
     }
 
     @Override
     public void onInit(String path, DSIValue qos, OutboundStream stream) {
         super.onInit(path, qos, stream);
-        node.info("Test Rule with sub path " + subpath + ": onInit called");
+        node.debug("Test Rule with sub path " + subpath + ": onInit called");
 //        this.stream = stream; 
     }
 
     @Override
     public void onUpdate(DSDateTime dateTime, DSElement value, DSStatus status) {
-        node.info("Test Rule with sub path " + subpath + ": onUpdate called with value " + (value!=null ? value : "Null"));
+        node.debug("Test Rule with sub path " + subpath + ": onUpdate called with value " + (value!=null ? value : "Null"));
     }
     
     public void close() {
         if (!isClosed() && getStream() != null) {
-            node.info("Test Rule with sub path " + subpath + ": closing Stream");
+            node.debug("Test Rule with sub path " + subpath + ": closing Stream");
             getStream().closeStream();
         }
     }

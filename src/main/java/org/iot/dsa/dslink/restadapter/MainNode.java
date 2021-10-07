@@ -5,6 +5,7 @@ import org.iot.dsa.dslink.ActionResults;
 import org.iot.dsa.dslink.DSIRequester;
 import org.iot.dsa.dslink.DSLinkConnection;
 import org.iot.dsa.dslink.DSMainNode;
+import org.iot.dsa.dslink.restadapter.Util.AUTH_SCHEME;
 import org.iot.dsa.node.DSBool;
 import org.iot.dsa.node.DSInfo;
 import org.iot.dsa.node.DSLong;
@@ -66,6 +67,7 @@ public class MainNode extends DSMainNode implements PurgeSettings {
     protected void declareDefaults() {
         super.declareDefaults();
         declareDefault(Constants.ACT_ADD_BASIC_CONN, makeAddBasicConnectionAction());
+        declareDefault(Constants.ACT_ADD_BEARER_CONN, makeAddBearerConnectionAction());
         declareDefault(Constants.ACT_ADD_OAUTH_CLIENT_CONN, makeAddOauthClientConnectionAction());
         declareDefault(Constants.ACT_ADD_OAUTH_PASSWORD_CONN, makeAddOauthPassConnectionAction());
         declareDefault(Constants.BUFFER_PURGE_ENABLED, DSBool.FALSE,
@@ -98,6 +100,12 @@ public class MainNode extends DSMainNode implements PurgeSettings {
         put(name, new ConnectionNode(parameters));
     }
 
+    private void addBearerConnection(DSMap parameters) {
+        parameters.put(Constants.CONNTYPE, DSString.valueOf(AUTH_SCHEME.BEARER));
+        String name = parameters.getString(Constants.NAME);
+        put(name, new ConnectionNode(parameters));
+    }
+
     private void addOAuthClientConnection(DSMap parameters) {
         parameters.put(Constants.CONNTYPE, DSString.valueOf(Util.AUTH_SCHEME.OAUTH2_CLIENT));
         String name = parameters.getString(Constants.NAME);
@@ -121,6 +129,19 @@ public class MainNode extends DSMainNode implements PurgeSettings {
         act.addParameter(Constants.NAME, DSString.NULL, null);
         act.addParameter(Constants.USERNAME, DSString.NULL, null);
         act.addParameter(Constants.PASSWORD, DSString.NULL, null).setEditor("password");
+        return act;
+    }
+
+    private DSAction makeAddBearerConnectionAction() {
+        DSAction act = new DSAction() {
+            @Override
+            public ActionResults invoke(DSIActionRequest req) {
+                ((MainNode) req.getTarget()).addBearerConnection(req.getParameters());
+                return null;
+            }
+        };
+        act.addParameter(Constants.NAME, DSString.NULL, null);
+        act.addParameter(Constants.TOKEN, DSString.NULL, null);
         return act;
     }
 

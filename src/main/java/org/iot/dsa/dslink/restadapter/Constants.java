@@ -10,6 +10,7 @@ public class Constants {
     public static final String CLIENT_ID = "Client ID";
     public static final String CLIENT_SECRET = "Client Secret";
     public static final String TOKEN_URL = "Token URL";
+    public static final String TOKEN = "Token";
     public static final String CONNTYPE = "ConnType";
     
     public static final String SUB_PATH = "Subscribe Path";
@@ -27,6 +28,7 @@ public class Constants {
     
     //Actions
     public static final String ACT_ADD_BASIC_CONN = "Basic Connection";
+    public static final String ACT_ADD_BEARER_CONN = "Bearer Connection";
     public static final String ACT_ADD_OAUTH_CLIENT_CONN = "OAuth2 Client Flow";
     public static final String ACT_ADD_OAUTH_PASSWORD_CONN = "OAuth2 Password Flow";
     public static final String ACT_ADD_RULE = "Add Rule";

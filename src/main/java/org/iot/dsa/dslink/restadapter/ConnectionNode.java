@@ -49,6 +49,10 @@ public class ConnectionNode extends DSNode implements CredentialProvider {
         return parameters.getString(Constants.USERNAME);
     }
 
+    public String getToken() {
+        return parameters.getString(Constants.TOKEN);
+    }
+
     public WebClientProxy getWebClientProxy() {
         return clientProxy;
     }
@@ -146,12 +150,14 @@ public class ConnectionNode extends DSNode implements CredentialProvider {
                 return null;
             }
         };
+
         AUTH_SCHEME scheme = getAuthScheme();
-        if (!Util.AUTH_SCHEME.OAUTH2_CLIENT.equals(scheme)) {
+        if (AUTH_SCHEME.BASIC_USR_PASS.equals(scheme)) {
             act.addDefaultParameter(Constants.USERNAME, DSString.valueOf(getUsername()), null);
             act.addDefaultParameter(Constants.PASSWORD, DSString.valueOf(getPassword()), null)
                .setEditor("password");
         }
+
         if (Util.AUTH_SCHEME.OAUTH2_CLIENT.equals(scheme) || Util.AUTH_SCHEME.OAUTH2_USR_PASS
                 .equals(scheme)) {
             act.addDefaultParameter(Constants.CLIENT_ID, DSString.valueOf(getClientId()), null);
@@ -159,6 +165,11 @@ public class ConnectionNode extends DSNode implements CredentialProvider {
                                     null).setEditor("password");
             act.addDefaultParameter(Constants.TOKEN_URL, DSString.valueOf(getTokenURL()), null);
         }
+
+        if (AUTH_SCHEME.BEARER.equals(scheme)) {
+            act.addDefaultParameter(Constants.TOKEN_URL, DSString.valueOf(getToken()), null);
+        }
+
         return act;
     }
 
