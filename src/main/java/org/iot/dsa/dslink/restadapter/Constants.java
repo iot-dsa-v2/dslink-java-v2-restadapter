@@ -43,6 +43,7 @@ public class Constants {
     public static final String LAST_RESPONSE_DATA = "Last Response Data";
     public static final String LAST_RESPONSE_TS = "Last Response Timestamp";
     public static final String LAST_RESPONSES_TABLE = "Last Responses";
+    public static final String SUBSCRIBE_PATH = "Subscribe Path";
     
     //FORMAT PLACEHOLDERS
     public static final String PLACEHOLDER_VALUE = "%VALUE%";
