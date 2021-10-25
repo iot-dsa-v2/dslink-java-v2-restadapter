@@ -124,6 +124,9 @@ public class WebClientProxy extends DSLogger {
                 clientBuilder.addInterceptor(new BasicAuthInterceptor(credentials.getUsername(),
                         credentials.getPassword()));
                 break;
+            case BEARER:
+                clientBuilder.addInterceptor(new BearerAuthInterceptor(credentials.getToken()));
+                break;
             case OAUTH2_CLIENT:
             case OAUTH2_USR_PASS:
                 clientBuilder.addInterceptor(new OAuthInterceptor(this));

@@ -17,6 +17,8 @@ public class RuleNode extends AbstractRuleNode {
     private DSInfo lastRespCode = getInfo(Constants.LAST_RESPONSE_CODE);
     private DSInfo lastRespData = getInfo(Constants.LAST_RESPONSE_DATA);
     private DSInfo lastRespTs = getInfo(Constants.LAST_RESPONSE_TS);
+    private DSInfo subscribePath = getInfo(Constants.SUB_PATH);
+
     private DSMap parameters;
     private SubscriptionRule rule;
 
@@ -78,6 +80,7 @@ public class RuleNode extends AbstractRuleNode {
         declareDefault(Constants.LAST_RESPONSE_CODE, DSInt.NULL).setReadOnly(true);
         declareDefault(Constants.LAST_RESPONSE_DATA, DSString.EMPTY).setReadOnly(true);
         declareDefault(Constants.LAST_RESPONSE_TS, DSString.EMPTY).setReadOnly(true);
+        declareDefault(Constants.SUB_PATH, DSString.EMPTY).setReadOnly(true);
     }
 
     protected void edit(DSMap parameters) {
@@ -97,6 +100,7 @@ public class RuleNode extends AbstractRuleNode {
         rule = new SubscriptionRule(this, getSubscribePath(), getRestUrl(), getMethod(),
                                     getURLParameters(), getBody(), getMinRefreshRate(),
                                     getMaxRefreshRate(), 0);
+        put(Constants.SUB_PATH, getSubscribePath());
         put(Constants.ACT_EDIT, makeEditAction()).setTransient(true);
     }
 

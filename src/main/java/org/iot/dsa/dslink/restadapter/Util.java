@@ -24,7 +24,8 @@ public class Util {
         NO_AUTH,
         BASIC_USR_PASS,
         OAUTH2_CLIENT,
-        OAUTH2_USR_PASS
+        OAUTH2_USR_PASS,
+        BEARER
     }
     
     public static Object dsElementToObject(DSElement element) {

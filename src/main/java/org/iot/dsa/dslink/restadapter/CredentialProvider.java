@@ -14,4 +14,6 @@ public interface CredentialProvider {
     
     public Util.AUTH_SCHEME getAuthScheme();
 
+    public String getToken();
+
 }
